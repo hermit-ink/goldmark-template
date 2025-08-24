@@ -18,7 +18,7 @@ func TestTemplateInlineStyles(t *testing.T) {
 		{
 			name:     "bold template in link text",
 			input:    "[**{{.BoldTitle}}** with other text]({{.URL}})",
-			expected: `BROKEN_TO_SEE_DEBUG`,
+			expected: `<p><a href="{{.URL}}"><strong>{{.BoldTitle}}</strong> with other text</a></p>`,
 		},
 		{
 			name:     "italic and code with template in link text",

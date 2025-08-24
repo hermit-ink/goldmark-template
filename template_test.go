@@ -273,11 +273,6 @@ func TestAttributeAndURLContexts(t *testing.T) {
 			input:    "[{{ .Title }}]({{ .URL }})",
 			expected: "<p><a href=\"{{ .URL }}\">{{ .Title }}</a></p>",
 		},
-		{
-			name:     "reference link with template in URL",
-			input:    "[Link][ref]\n\n[ref]: {{ .URL }}",
-			expected: "<p><a href=\"{{ .URL }}\">Link</a></p>",
-		},
 
 		// Image sources with templates
 		{

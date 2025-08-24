@@ -359,62 +359,6 @@ func parseLinkDestination(block text.Reader) ([]byte, bool) {
 				continue
 			} else if c == '>' {
 				block.Advance(i + 1)
-				dest := line[1:i]
-				// KEY CHANGE: Accept templates as valid URLs
-				return dest, true
-			}
-			i++
-		}
-		return nil, false
-	}
-	opened := 0
-	i := 0
-	for i < len(line) {
-		c := line[i]
-		if c == '\\' && i < len(line)-1 && util.IsPunct(line[i+1]) {
-			i += 2
-			continue
-		} else if c == '(' {
-			opened++
-		} else if c == ')' {
-			opened--
-			if opened < 0 {
-				break
-			}
-		} else if util.IsSpace(c) && opened == 0 {
-			break
-		}
-		i++
-	}
-	block.Advance(i)
-	dest := line[:i]
-
-	// KEY CHANGE: Always accept non-empty destinations, especially with templates
-	if len(dest) == 0 {
-		return nil, false
-	}
-
-	// Templates are always valid
-	if bytes.Contains(dest, []byte("{{")) {
-		return dest, true
-	}
-
-	// For non-template URLs, still accept them (goldmark does more validation in renderer)
-	return dest, true
-}
-
-func parseLinkDestinationOriginal(block text.Reader) ([]byte, bool) {
-	block.SkipSpaces()
-	line, _ := block.PeekLine()
-	if block.Peek() == '<' {
-		i := 1
-		for i < len(line) {
-			c := line[i]
-			if c == '\\' && i < len(line)-1 && util.IsPunct(line[i+1]) {
-				i += 2
-				continue
-			} else if c == '>' {
-				block.Advance(i + 1)
 				return line[1:i], true
 			}
 			i++
@@ -423,8 +367,26 @@ func parseLinkDestinationOriginal(block text.Reader) ([]byte, bool) {
 	}
 	opened := 0
 	i := 0
+	insideTemplate := false
+
 	for i < len(line) {
 		c := line[i]
+
+		// Track if we're inside a Go template {{...}}
+		// NOTE: ignoring pathological cases where a }} is inside quotes or
+		// complex template expression. I think this can be worked around
+		// with quoting the curly braces except for {{"}}"}} but cant why would
+		// you need that version?
+		if c == '{' && i < len(line)-1 && line[i+1] == '{' {
+			insideTemplate = true
+			i += 2 // Skip both '{{'
+			continue
+		} else if c == '}' && i < len(line)-1 && line[i+1] == '}' && insideTemplate {
+			insideTemplate = false
+			i += 2 // Skip both '}}'
+			continue
+		}
+
 		if c == '\\' && i < len(line)-1 && util.IsPunct(line[i+1]) {
 			i += 2
 			continue
@@ -435,13 +397,22 @@ func parseLinkDestinationOriginal(block text.Reader) ([]byte, bool) {
 			if opened < 0 {
 				break
 			}
-		} else if util.IsSpace(c) {
+		} else if util.IsSpace(c) && opened == 0 && !insideTemplate {
+			// Only break on spaces if we're not inside a template
 			break
 		}
 		i++
 	}
 	block.Advance(i)
-	return line[:i], len(line[:i]) != 0
+	dest := line[:i]
+
+	// Templates are always valid, otherwise use original validation
+	if bytes.Contains(dest, []byte("{{")) {
+		return dest, true
+	}
+
+	// For non-template URLs, use original goldmark logic
+	return dest, len(dest) != 0
 }
 
 func parseLinkTitle(block text.Reader) ([]byte, bool) {

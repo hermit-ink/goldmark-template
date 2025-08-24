@@ -145,12 +145,7 @@ type TemplatedHTMLExtension struct{}
 
 // Extend configures the markdown processor to use our custom template handling
 func (e *TemplatedHTMLExtension) Extend(m goldmark.Markdown) {
-	m.Parser().AddOptions(
-		parser.WithInlineParsers(
-			// Very high priority to override default link parser
-			util.Prioritized(NewTemplatedLinkParser(), 10000),
-		),
-	)
+	// Don't add parser here - it's handled by NewTemplatedParser()
 	m.Renderer().AddOptions(
 		renderer.WithNodeRenderers(
 			util.Prioritized(NewTemplateRenderer(), 100),
