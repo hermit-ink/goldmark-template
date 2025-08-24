@@ -131,7 +131,6 @@ var linkBottom = NewContextKey()
 
 func (s *linkParser) Parse(parent ast.Node, block text.Reader, pc Context) ast.Node {
 	line, segment := block.PeekLine()
-	fmt.Printf("DEBUG: linkParser.Parse called with line[0]=%c, line=%q, parent=%T\n", line[0], string(line), parent)
 	if line[0] == '!' {
 		if len(line) > 1 && line[1] == '[' {
 			block.Advance(1)
@@ -147,12 +146,10 @@ func (s *linkParser) Parse(parent ast.Node, block text.Reader, pc Context) ast.N
 
 	// line[0] == ']'
 	tlist := pc.Get(linkLabelStateKey)
-	fmt.Printf("DEBUG: tlist is nil: %v\n", tlist == nil)
 	if tlist == nil {
 		return nil
 	}
 	last := tlist.(*linkLabelState).Last
-	fmt.Printf("DEBUG: last is nil: %v\n", last == nil)
 	if last == nil {
 		_ = popLinkBottom(pc)
 		return nil
@@ -174,12 +171,10 @@ func (s *linkParser) Parse(parent ast.Node, block text.Reader, pc Context) ast.N
 	}
 
 	c := block.Peek()
-	fmt.Printf("DEBUG: after ], next char is %c (byte %d)\n", c, c)
 	l, pos := block.Position()
 	var link *ast.Link
 	var hasValue bool
 	if c == '(' { // normal link
-		fmt.Printf("DEBUG: calling parseLink\n")
 		link = s.parseLink(parent, last, block, pc)
 	} else if c == '[' { // reference link
 		link, hasValue = s.parseReferenceLink(parent, last, block, pc)
@@ -307,7 +302,6 @@ func (s *linkParser) parseReferenceLink(parent ast.Node, last *linkLabelState,
 }
 
 func (s *linkParser) parseLink(parent ast.Node, last *linkLabelState, block text.Reader, pc Context) *ast.Link {
-	fmt.Printf("DEBUG: parseLink called\n")
 	block.Advance(1) // skip '('
 	block.SkipSpaces()
 	var title []byte
@@ -317,9 +311,7 @@ func (s *linkParser) parseLink(parent ast.Node, last *linkLabelState, block text
 		block.Advance(1)
 	} else {
 		destination, ok = parseLinkDestination(block)
-		fmt.Printf("DEBUG: parseLinkDestination returned: dest=%q, ok=%v\n", string(destination), ok)
 		if !ok {
-			fmt.Printf("DEBUG: parseLinkDestination failed, returning nil\n")
 			return nil
 		}
 		block.SkipSpaces()
