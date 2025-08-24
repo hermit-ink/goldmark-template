@@ -21,31 +21,31 @@ func hasTemplate(content []byte) bool {
 	return bytes.Contains(content, templatePattern)
 }
 
-// TemplateWriter is a custom HTML writer that preserves Go template directives
+// Writer is a custom HTML writer that preserves Go template directives
 // without HTML escaping them, while properly handling escaped template cases.
-type TemplateWriter struct {
+type Writer struct {
 	fallback html.Writer
 }
 
-// NewTemplateWriter creates a new TemplateWriter
-func NewTemplateWriter(opts ...html.WriterOption) html.Writer {
-	return &TemplateWriter{
+// NewWriter creates a new Writer
+func NewWriter(opts ...html.WriterOption) html.Writer {
+	return &Writer{
 		fallback: html.NewWriter(opts...),
 	}
 }
 
 // Write writes content with normal processing
-func (w *TemplateWriter) Write(writer util.BufWriter, source []byte) {
+func (w *Writer) Write(writer util.BufWriter, source []byte) {
 	w.fallback.Write(writer, source)
 }
 
 // SecureWrite writes content with security filtering
-func (w *TemplateWriter) SecureWrite(writer util.BufWriter, source []byte) {
+func (w *Writer) SecureWrite(writer util.BufWriter, source []byte) {
 	w.fallback.SecureWrite(writer, source)
 }
 
 // RawWrite writes content while preserving Go template directives
-func (w *TemplateWriter) RawWrite(writer util.BufWriter, source []byte) {
+func (w *Writer) RawWrite(writer util.BufWriter, source []byte) {
 	n := 0
 	i := 0
 
@@ -80,7 +80,7 @@ func (w *TemplateWriter) RawWrite(writer util.BufWriter, source []byte) {
 
 // findDirectiveEnd finds the end of a template directive, handling nested templates
 // and string literals
-func (w *TemplateWriter) findDirectiveEnd(source []byte, start int) int {
+func (w *Writer) findDirectiveEnd(source []byte, start int) int {
 	depth := 1
 	i := start
 	inString := false
@@ -124,7 +124,7 @@ func (w *TemplateWriter) findDirectiveEnd(source []byte, start int) int {
 }
 
 // writeEscaped writes content with HTML escaping
-func (w *TemplateWriter) writeEscaped(writer util.BufWriter, source []byte) error {
+func (w *Writer) writeEscaped(writer util.BufWriter, source []byte) error {
 	for _, b := range source {
 		if escaped := util.EscapeHTMLByte(b); escaped != nil {
 			if _, err := writer.Write(escaped); err != nil {
@@ -140,30 +140,30 @@ func (w *TemplateWriter) writeEscaped(writer util.BufWriter, source []byte) erro
 }
 
 
-// TemplatedHTMLExtension is a goldmark extension for handling Go templates
-type TemplatedHTMLExtension struct{}
+// Extension is a goldmark extension for handling Go templates
+type Extension struct{}
 
 // Extend configures the markdown processor to use our custom template handling
-func (e *TemplatedHTMLExtension) Extend(m goldmark.Markdown) {
+func (e *Extension) Extend(m goldmark.Markdown) {
 	// Don't add parser here - it's handled by NewTemplatedParser()
 	m.Renderer().AddOptions(
 		renderer.WithNodeRenderers(
-			util.Prioritized(NewTemplateRenderer(), 100),
+			util.Prioritized(NewRenderer(), 100),
 		),
 	)
 }
 
-// TemplateRenderer is a custom renderer that uses TemplateWriter
-type TemplateRenderer struct {
+// Renderer is a custom renderer that uses Writer
+type Renderer struct {
 	html.Config
 }
 
-// NewTemplateRenderer creates a new TemplateRenderer
-func NewTemplateRenderer(opts ...html.Option) renderer.NodeRenderer {
-	r := &TemplateRenderer{
+// NewRenderer creates a new Renderer
+func NewRenderer(opts ...html.Option) renderer.NodeRenderer {
+	r := &Renderer{
 		Config: html.NewConfig(),
 	}
-	r.Writer = NewTemplateWriter()
+	r.Writer = NewWriter()
 	for _, opt := range opts {
 		opt.SetHTMLOption(&r.Config)
 	}
@@ -171,7 +171,7 @@ func NewTemplateRenderer(opts ...html.Option) renderer.NodeRenderer {
 }
 
 // RegisterFuncs registers rendering functions for code blocks and spans
-func (r *TemplateRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
+func (r *Renderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	reg.Register(ast.KindCodeBlock, r.renderCodeBlock)
 	reg.Register(ast.KindFencedCodeBlock, r.renderFencedCodeBlock)
 	reg.Register(ast.KindCodeSpan, r.renderCodeSpan)
@@ -179,7 +179,7 @@ func (r *TemplateRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer
 	reg.Register(ast.KindImage, r.renderImage)
 }
 
-func (r *TemplateRenderer) renderCodeBlock(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderCodeBlock(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if entering {
 		if _, err := w.WriteString("<pre><code>"); err != nil {
 			return ast.WalkStop, err
@@ -195,7 +195,7 @@ func (r *TemplateRenderer) renderCodeBlock(w util.BufWriter, source []byte, n as
 	return ast.WalkContinue, nil
 }
 
-func (r *TemplateRenderer) renderFencedCodeBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderFencedCodeBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.FencedCodeBlock)
 	if entering {
 		if _, err := w.WriteString("<pre><code"); err != nil {
@@ -225,7 +225,7 @@ func (r *TemplateRenderer) renderFencedCodeBlock(w util.BufWriter, source []byte
 	return ast.WalkContinue, nil
 }
 
-func (r *TemplateRenderer) renderCodeSpan(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderCodeSpan(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if entering {
 		if n.Attributes() != nil {
 			if _, err := w.WriteString("<code"); err != nil {
@@ -258,7 +258,7 @@ func (r *TemplateRenderer) renderCodeSpan(w util.BufWriter, source []byte, n ast
 	return ast.WalkContinue, nil
 }
 
-func (r *TemplateRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkContinue, nil
 	}
@@ -288,7 +288,7 @@ func (r *TemplateRenderer) renderImage(w util.BufWriter, source []byte, node ast
 	return ast.WalkSkipChildren, nil
 }
 
-func (r *TemplateRenderer) extractTextContent(n ast.Node, source []byte) []byte {
+func (r *Renderer) extractTextContent(n ast.Node, source []byte) []byte {
 	var buf bytes.Buffer
 	ast.Walk(n, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		if entering {
@@ -302,7 +302,7 @@ func (r *TemplateRenderer) extractTextContent(n ast.Node, source []byte) []byte 
 }
 
 // writeAttribute writes an HTML attribute with template preservation
-func (r *TemplateRenderer) writeAttribute(w util.BufWriter, name string, value []byte) error {
+func (r *Renderer) writeAttribute(w util.BufWriter, name string, value []byte) error {
 	if value == nil {
 		return nil
 	}
@@ -326,7 +326,7 @@ func (r *TemplateRenderer) writeAttribute(w util.BufWriter, name string, value [
 	return nil
 }
 
-func (r *TemplateRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *Renderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Link)
 	if entering {
 		if _, err := w.WriteString("<a"); err != nil {
@@ -349,7 +349,7 @@ func (r *TemplateRenderer) renderLink(w util.BufWriter, source []byte, node ast.
 	return ast.WalkContinue, nil
 }
 
-func (r *TemplateRenderer) writeLines(w util.BufWriter, source []byte, n ast.Node) error {
+func (r *Renderer) writeLines(w util.BufWriter, source []byte, n ast.Node) error {
 	l := n.Lines().Len()
 	for i := range l {
 		line := n.Lines().At(i)
@@ -358,13 +358,13 @@ func (r *TemplateRenderer) writeLines(w util.BufWriter, source []byte, n ast.Nod
 	return nil
 }
 
-// NewTemplatedHTMLExtension creates a new goldmark.Extender for template support
-func NewTemplatedHTMLExtension() goldmark.Extender {
-	return &TemplatedHTMLExtension{}
+// NewExtension creates a new goldmark.Extender for template support
+func NewExtension() goldmark.Extender {
+	return &Extension{}
 }
 
-// NewTemplatedParser creates a parser with our custom link parser replacing the default
-func NewTemplatedParser() parser.Parser {
+// NewParser creates a parser with our custom link parser replacing the default
+func NewParser() parser.Parser {
 	// Get default parsers
 	blockParsers := parser.DefaultBlockParsers()
 	inlineParsers := parser.DefaultInlineParsers()
@@ -388,7 +388,7 @@ func NewTemplatedParser() parser.Parser {
 	
 	// Add our templated link parser at the same priority (200)
 	filteredInlineParsers = append(filteredInlineParsers, 
-		util.Prioritized(NewTemplatedLinkParser(), 200))
+		util.Prioritized(NewLinkParser(), 200))
 	
 	return parser.NewParser(
 		parser.WithBlockParsers(blockParsers...),

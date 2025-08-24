@@ -118,8 +118,8 @@ type linkParser struct {
 
 var defaultLinkParser = &linkParser{}
 
-// NewTemplatedLinkParser returns a new InlineParser that parses links with  go template support.
-func NewTemplatedLinkParser() InlineParser {
+// NewLinkParser returns a new InlineParser that parses links with  go template support.
+func NewLinkParser() InlineParser {
 	return defaultLinkParser
 }
 

@@ -31,10 +31,10 @@ func TestWithGFMExtension(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			md := goldmark.New(
-				goldmark.WithParser(NewTemplatedParser()),
+				goldmark.WithParser(NewParser()),
 				goldmark.WithExtensions(
 					extension.GFM,
-					NewTemplatedHTMLExtension(), // Our extension should work with GFM
+					NewExtension(), // Our extension should work with GFM
 				),
 				goldmark.WithRendererOptions(
 					html.WithUnsafe(),
@@ -60,8 +60,8 @@ func TestWithGFMExtension(t *testing.T) {
 
 func BenchmarkTemplateExtension(b *testing.B) {
 	md := goldmark.New(
-		goldmark.WithParser(NewTemplatedParser()),
-		goldmark.WithExtensions(NewTemplatedHTMLExtension()),
+		goldmark.WithParser(NewParser()),
+		goldmark.WithExtensions(NewExtension()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
@@ -79,8 +79,8 @@ func BenchmarkTemplateExtension(b *testing.B) {
 
 func BenchmarkTemplateExtensionComplex(b *testing.B) {
 	md := goldmark.New(
-		goldmark.WithParser(NewTemplatedParser()),
-		goldmark.WithExtensions(NewTemplatedHTMLExtension()),
+		goldmark.WithParser(NewParser()),
+		goldmark.WithExtensions(NewExtension()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
