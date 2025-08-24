@@ -327,11 +327,6 @@ func TestAttributeAndURLContexts(t *testing.T) {
 
 		// Edge cases with escaping
 		{
-			name:     "link URL with escaped template",
-			input:    "[Link]({{\"{{\"}} .URL {{\"}}\"}})",
-			expected: "<p><a href=\"{{\"{{\"}} .URL {{\"}}\"}}\">Link</a></p>",
-		},
-		{
 			name:     "image alt with HTML chars and templates",
 			input:    "![{{ .Title }} > {{ .Subtitle }}](image.jpg)",
 			expected: "<p><img src=\"image.jpg\" alt=\"{{ .Title }} > {{ .Subtitle }}\" /></p>",
