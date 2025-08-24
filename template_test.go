@@ -1,7 +1,6 @@
 package goldmarktemplate
 
 import (
-	"bufio"
 	"bytes"
 	"strings"
 	"testing"
@@ -43,18 +42,18 @@ func TestTemplateExtension(t *testing.T) {
 		// Escaped template cases
 		{
 			name:     "escaped opening braces",
-			input:    "`{{\"{{\"}}` shows literal braces",
-			expected: "<p><code>{{</code> shows literal braces</p>",
+			input:    "`{{\"{{\"}}`",
+			expected: "<p><code>{{\"{{\"}}</code></p>",
 		},
 		{
 			name:     "escaped closing braces",
 			input:    "`{{\"}}\"}}`",
-			expected: "<p><code>}}</code></p>",
+			expected: "<p><code>{{\"}}\"}}</code></p>",
 		},
 		{
 			name:     "mixed escaped and regular templates",
 			input:    "`{{\"{{\"}}` and `{{ .Name }}`",
-			expected: "<p><code>{{</code> and <code>{{ .Name }}</code></p>",
+			expected: "<p><code>{{\"{{\"}}</code> and <code>{{ .Name }}</code></p>",
 		},
 
 		// Templates in code blocks
@@ -71,7 +70,7 @@ func TestTemplateExtension(t *testing.T) {
 		{
 			name: "escaped templates in code block",
 			input: "```\n{{\"{{\"}} and {{\"}}\"}}\n```",
-			expected: "<pre><code>{{ and }}\n</code></pre>\n",
+			expected: "<pre><code>{{\"{{\"}} and {{\"}}\"}}\n</code></pre>\n",
 		},
 
 		// Nested templates
@@ -93,7 +92,7 @@ func TestTemplateExtension(t *testing.T) {
 
 		// Edge cases
 		{
-			name:     "incomplete template directive",
+			name:     "incomplete template directive (later step will find the error)",
 			input:    "`{{ .Name` without closing",
 			expected: "<p><code>{{ .Name</code> without closing</p>",
 		},
@@ -137,7 +136,7 @@ func TestTemplateExtension(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			md := goldmark.New(
 				goldmark.WithExtensions(
-					New(),
+					NewTemplatedHTMLExtension(),
 				),
 			)
 
@@ -183,7 +182,7 @@ func TestTemplateExtensionWithOtherExtensions(t *testing.T) {
 			md := goldmark.New(
 				goldmark.WithExtensions(
 					extension.GFM,
-					New(), // Our extension should work with GFM
+					NewTemplatedHTMLExtension(), // Our extension should work with GFM
 				),
 			)
 
@@ -203,61 +202,9 @@ func TestTemplateExtensionWithOtherExtensions(t *testing.T) {
 	}
 }
 
-func TestTemplateWriterDirectly(t *testing.T) {
-	// Direct unit tests for the TemplateWriter
-	tests := []struct {
-		name     string
-		input    []byte
-		expected string
-	}{
-		{
-			name:     "simple template",
-			input:    []byte("{{ .Name }}"),
-			expected: "{{ .Name }}",
-		},
-		{
-			name:     "template with HTML chars",
-			input:    []byte("{{ if .Value > 5 }}<div>{{ end }}"),
-			expected: "{{ if .Value > 5 }}&lt;div&gt;{{ end }}",
-		},
-		{
-			name:     "escaped open braces",
-			input:    []byte(`{{"{{"}}`),
-			expected: "{{",
-		},
-		{
-			name:     "escaped close braces",
-			input:    []byte(`{{"}}"}}`),
-			expected: "}}",
-		},
-		{
-			name:     "mixed content",
-			input:    []byte("before {{ .Value }} <after> & more"),
-			expected: "before {{ .Value }} &lt;after&gt; &amp; more",
-		},
-	}
-
-	writer := NewTemplateWriter()
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Use bufio.Writer which implements util.BufWriter
-			var byteBuf bytes.Buffer
-			buf := bufio.NewWriter(&byteBuf)
-			writer.RawWrite(buf, tt.input)
-			buf.Flush()
-
-			got := byteBuf.String()
-			if got != tt.expected {
-				t.Errorf("Output mismatch\nInput:    %q\nExpected: %q\nGot:      %q", tt.input, tt.expected, got)
-			}
-		})
-	}
-}
-
 func BenchmarkTemplateExtension(b *testing.B) {
 	md := goldmark.New(
-		goldmark.WithExtensions(New()),
+		goldmark.WithExtensions(NewTemplatedHTMLExtension()),
 	)
 
 	input := []byte("Text with `{{ .Code }}` and `{{ if .Value > 5 }}high{{ end }}` templates.")
@@ -271,7 +218,7 @@ func BenchmarkTemplateExtension(b *testing.B) {
 
 func BenchmarkTemplateExtensionComplex(b *testing.B) {
 	md := goldmark.New(
-		goldmark.WithExtensions(New()),
+		goldmark.WithExtensions(NewTemplatedHTMLExtension()),
 	)
 
 	input := []byte(`
@@ -331,7 +278,7 @@ func TestAttributeAndURLContexts(t *testing.T) {
 			input:    "[Link][ref]\n\n[ref]: {{ .URL }}",
 			expected: "<p><a href=\"{{ .URL }}\">Link</a></p>",
 		},
-		
+
 		// Image sources with templates
 		{
 			name:     "image with template in src",
@@ -348,7 +295,7 @@ func TestAttributeAndURLContexts(t *testing.T) {
 			input:    "![{{ .Title | quote }}](image.jpg)",
 			expected: "<p><img src=\"image.jpg\" alt=\"{{ .Title | quote }}\" /></p>",
 		},
-		
+
 		// Raw HTML attributes with templates
 		{
 			name:     "raw HTML with template in attribute",
@@ -358,7 +305,7 @@ func TestAttributeAndURLContexts(t *testing.T) {
 		{
 			name:     "raw HTML with template in class attribute",
 			input:    "<span class=\"{{ .CSSClass }}\">Text</span>",
-			expected: "<span class=\"{{ .CSSClass }}\">Text</span>",
+			expected: "<p><span class=\"{{ .CSSClass }}\">Text</span></p>",
 		},
 		{
 			name:     "raw HTML with template containing quotes in attribute",
@@ -368,9 +315,9 @@ func TestAttributeAndURLContexts(t *testing.T) {
 		{
 			name:     "raw HTML with multiple template attributes",
 			input:    "<a href=\"{{ .URL }}\" title=\"{{ .Title }}\" class=\"{{ .Class }}\">Link</a>",
-			expected: "<a href=\"{{ .URL }}\" title=\"{{ .Title }}\" class=\"{{ .Class }}\">Link</a>",
+			expected: "<p><a href=\"{{ .URL }}\" title=\"{{ .Title }}\" class=\"{{ .Class }}\">Link</a></p>",
 		},
-		
+
 		// Templates in HTML content (not attributes)
 		{
 			name:     "template in raw HTML content",
@@ -382,12 +329,12 @@ func TestAttributeAndURLContexts(t *testing.T) {
 			input:    "<p>Value: {{ if .Value > 0 }}{{ .Value }}{{ else }}N/A{{ end }}</p>",
 			expected: "<p>Value: {{ if .Value > 0 }}{{ .Value }}{{ else }}N/A{{ end }}</p>",
 		},
-		
+
 		// Edge cases with escaping
 		{
 			name:     "link URL with escaped template",
 			input:    "[Link]({{\"{{\"}} .URL {{\"}}\"}})",
-			expected: "<p><a href=\"{{ .URL }}\">Link</a></p>",
+			expected: "<p><a href=\"{{\"{{\"}} .URL {{\"}}\"}}\">Link</a></p>",
 		},
 		{
 			name:     "image alt with HTML chars and templates",
@@ -402,9 +349,11 @@ func TestAttributeAndURLContexts(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(New()),
+		goldmark.WithParser(NewTemplatedParser()),
+		goldmark.WithExtensions(NewTemplatedHTMLExtension()),
 		goldmark.WithRendererOptions(
-			html.WithUnsafe(), // Allow raw HTML for these tests
+			html.WithUnsafe(),
+			html.WithXHTML(),
 		),
 	)
 
@@ -460,7 +409,7 @@ func TestEdgeCases(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(New()),
+		goldmark.WithExtensions(NewTemplatedHTMLExtension()),
 		goldmark.WithParserOptions(
 			parser.WithAutoHeadingID(),
 		),
