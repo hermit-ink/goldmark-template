@@ -1,13 +1,14 @@
 package goldmarktemplate
 
 import (
-	"github.com/yuin/goldmark/parser"
+	"github.com/hermit-ink/goldmark-template/parser"
+	gparser "github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/util"
 )
 
 // NewParser creates a parser with our custom link parser and reference parser replacing the defaults
-func NewParser() parser.Parser {
-	ip := parser.DefaultInlineParsers()
+func NewParser() gparser.Parser {
+	ip := gparser.DefaultInlineParsers()
 
 	parsers := make([]util.PrioritizedValue, 0, len(ip))
 	for _, pv := range ip {
@@ -15,11 +16,11 @@ func NewParser() parser.Parser {
 			t := lp.Trigger()
 			if len(t) == 3 && t[0] == '!' && t[1] == '[' && t[2] == ']' {
 				// Looks like a duck, talks like a duck
-				parsers = append(parsers, util.Prioritized(NewLinkParser(), 200))
+				parsers = append(parsers, util.Prioritized(parser.NewLinkParser(), 200))
 				continue
 			}
 			if len(t) == 1 && t[0] == '<' && pv.Priority == 300 {
-				parsers = append(parsers, util.Prioritized(NewAutoLinkParser(), 300))
+				parsers = append(parsers, util.Prioritized(parser.NewAutoLinkParser(), 300))
 				continue
 			}
 		}
@@ -28,23 +29,23 @@ func NewParser() parser.Parser {
 
 	parsers = append(
 		parsers,
-		util.Prioritized(NewTemplateActionParser(), 50))
+		util.Prioritized(parser.NewTemplateActionParser(), 50))
 
-	pt := parser.DefaultParagraphTransformers()
+	pt := gparser.DefaultParagraphTransformers()
 	transformers := make([]util.PrioritizedValue, 0, len(pt))
 	for _, pv := range pt {
-		if pv.Value != parser.LinkReferenceParagraphTransformer {
+		if pv.Value != gparser.LinkReferenceParagraphTransformer {
 			transformers = append(transformers, pv)
 		}
 	}
 	// Add our custom reference paragraph transformer
 	transformers = append(
 		transformers,
-		util.Prioritized(NewReferenceParagraphTransformer(), 999))
+		util.Prioritized(parser.NewReferenceParagraphTransformer(), 999))
 
-	return parser.NewParser(
-		parser.WithBlockParsers(parser.DefaultBlockParsers()...),
-		parser.WithInlineParsers(parsers...),
-		parser.WithParagraphTransformers(transformers...),
+	return gparser.NewParser(
+		gparser.WithBlockParsers(gparser.DefaultBlockParsers()...),
+		gparser.WithInlineParsers(parsers...),
+		gparser.WithParagraphTransformers(transformers...),
 	)
 }

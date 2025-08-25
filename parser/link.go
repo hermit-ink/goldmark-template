@@ -1,4 +1,4 @@
-package goldmarktemplate
+package parser
 
 import (
 	"bytes"
@@ -6,16 +6,20 @@ import (
 	"strings"
 
 	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/parser"
+	gparser "github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
 	"github.com/yuin/goldmark/util"
 )
 
-type Context = parser.Context
-type InlineParser = parser.InlineParser
+type (
+	Context      = gparser.Context
+	InlineParser = gparser.InlineParser
+)
 
-var NewContextKey = parser.NewContextKey
-var ProcessDelimiters = parser.ProcessDelimiters
+var (
+	NewContextKey     = gparser.NewContextKey
+	ProcessDelimiters = gparser.ProcessDelimiters
+)
 
 var linkLabelStateKey = NewContextKey()
 
@@ -113,8 +117,7 @@ func removeLinkLabelState(pc Context, d *linkLabelState) {
 	d.Last = nil
 }
 
-type linkParser struct {
-}
+type linkParser struct{}
 
 var defaultLinkParser = &linkParser{}
 
@@ -127,7 +130,7 @@ func (s *linkParser) Trigger() []byte {
 	return []byte{'!', '[', ']'}
 }
 
-var linkBottom = NewContextKey()
+var linkBottom = gparser.NewContextKey()
 
 func (s *linkParser) Parse(parent ast.Node, block text.Reader, pc Context) ast.Node {
 	line, segment := block.PeekLine()
@@ -261,7 +264,8 @@ var linkFindClosureOptions text.FindClosureOptions = text.FindClosureOptions{
 }
 
 func (s *linkParser) parseReferenceLink(parent ast.Node, last *linkLabelState,
-	block text.Reader, pc Context) (*ast.Link, bool) {
+	block text.Reader, pc Context,
+) (*ast.Link, bool) {
 	_, orgpos := block.Position()
 	block.Advance(1) // skip '['
 	segments, found := block.FindClosure('[', ']', linkFindClosureOptions)

@@ -185,4 +185,3 @@ func TestHTMLBlocks(t *testing.T) {
 		})
 	}
 }
-

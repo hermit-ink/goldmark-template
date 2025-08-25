@@ -1,22 +1,32 @@
-package goldmarktemplate
+package html
 
 import (
 	"bytes"
 
-	"github.com/yuin/goldmark/renderer/html"
+	ghtml "github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/util"
 )
+
+// Template detection utilities
+var (
+	actionPattern = []byte("{{")
+)
+
+// hasAction checks if content contains template actions
+func hasAction(content []byte) bool {
+	return bytes.Contains(content, actionPattern)
+}
 
 // Writer is a custom HTML writer that preserves Go template actions
 // without HTML escaping them, while properly handling escaped template cases.
 type Writer struct {
-	fallback html.Writer
+	fallback ghtml.Writer
 }
 
 // NewWriter creates a new Writer
-func NewWriter(opts ...html.WriterOption) html.Writer {
+func NewWriter(opts ...ghtml.WriterOption) ghtml.Writer {
 	return &Writer{
-		fallback: html.NewWriter(opts...),
+		fallback: ghtml.NewWriter(opts...),
 	}
 }
 
@@ -48,52 +58,8 @@ func (w *Writer) RawWrite(writer util.BufWriter, source []byte) {
 				if _, err := writer.Write(source[i:end]); err != nil {
 					return
 				}
-				i = end
 				n = end
-				continue
-			}
-		}
-		i++
-	}
-
-	// Write remaining content with escaping
-	_ = w.writeEscaped(writer, source[n:])
-}
-
-// findActionEnd finds the end of a template action, handling nested templates
-// and string literals
-func (w *Writer) findActionEnd(source []byte, start int) int {
-	depth := 1
-	i := start
-	inString := false
-	inRawString := false
-
-	for i < len(source)-1 {
-		// Handle raw strings (backticks)
-		if source[i] == '`' && !inString {
-			inRawString = !inRawString
-			i++
-			continue
-		}
-
-		// Handle regular strings
-		if source[i] == '"' && !inRawString && (i == start || source[i-1] != '\\') {
-			inString = !inString
-			i++
-			continue
-		}
-
-		// Only process template markers outside strings
-		if !inString && !inRawString {
-			if source[i] == '{' && i+1 < len(source) && source[i+1] == '{' {
-				depth++
-				i += 2
-			} else if source[i] == '}' && i+1 < len(source) && source[i+1] == '}' {
-				depth--
-				if depth == 0 {
-					return i + 2
-				}
-				i += 2
+				i = end
 			} else {
 				i++
 			}
@@ -102,21 +68,57 @@ func (w *Writer) findActionEnd(source []byte, start int) int {
 		}
 	}
 
-	return -1 // No matching closing found
+	// Write remaining content (with escaping)
+	if n < len(source) {
+		_ = w.writeEscaped(writer, source[n:])
+	}
 }
 
-// writeEscaped writes content with HTML escaping
 func (w *Writer) writeEscaped(writer util.BufWriter, source []byte) error {
 	for _, b := range source {
-		if escaped := util.EscapeHTMLByte(b); escaped != nil {
-			if _, err := writer.Write(escaped); err != nil {
+		switch b {
+		case '<':
+			if _, err := writer.WriteString("&lt;"); err != nil {
 				return err
 			}
-		} else {
+		case '>':
+			if _, err := writer.WriteString("&gt;"); err != nil {
+				return err
+			}
+		case '&':
+			if _, err := writer.WriteString("&amp;"); err != nil {
+				return err
+			}
+		case '"':
+			if _, err := writer.WriteString("&quot;"); err != nil {
+				return err
+			}
+		default:
 			if err := writer.WriteByte(b); err != nil {
 				return err
 			}
 		}
 	}
 	return nil
+}
+
+func (w *Writer) findActionEnd(source []byte, start int) int {
+	inDoubleQuotes := false
+	inSingleQuotes := false
+
+	for i := start; i < len(source)-1; i++ {
+		char := source[i]
+
+		if char == '"' && !inSingleQuotes {
+			inDoubleQuotes = !inDoubleQuotes
+		} else if char == '\'' && !inDoubleQuotes {
+			inSingleQuotes = !inSingleQuotes
+		}
+
+		if !inDoubleQuotes && !inSingleQuotes && char == '}' && source[i+1] == '}' {
+			return i + 2
+		}
+	}
+
+	return -1
 }

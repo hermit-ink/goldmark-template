@@ -1,6 +1,7 @@
 package goldmarktemplate
 
 import (
+	"github.com/hermit-ink/goldmark-template/renderer/html"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/util"
@@ -19,8 +20,8 @@ func NewExtension() goldmark.Extender {
 func (e *Extension) Extend(m goldmark.Markdown) {
 	m.Renderer().AddOptions(
 		renderer.WithNodeRenderers(
-			util.Prioritized(NewRenderer(), 100),
-			util.Prioritized(NewTemplateActionHTMLRenderer(), 500),
+			util.Prioritized(html.NewRenderer(), 100),
+			util.Prioritized(html.NewTemplateActionHTMLRenderer(), 500),
 		),
 	)
 }

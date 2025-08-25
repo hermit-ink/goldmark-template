@@ -1,20 +1,19 @@
-package goldmarktemplate
+package parser
 
 import (
 	"bytes"
 
 	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/parser"
+	gparser "github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
 	"github.com/yuin/goldmark/util"
 )
 
-type autoLinkParser struct {
-}
+type autoLinkParser struct{}
 
 // NewAutoLinkParser returns a new InlineParser that parses autolinks with Go
 // template action support
-func NewAutoLinkParser() parser.InlineParser {
+func NewAutoLinkParser() gparser.InlineParser {
 	return &autoLinkParser{}
 }
 
@@ -22,7 +21,7 @@ func (s *autoLinkParser) Trigger() []byte {
 	return []byte{'<'}
 }
 
-func (s *autoLinkParser) Parse(parent ast.Node, block text.Reader, pc parser.Context) ast.Node {
+func (s *autoLinkParser) Parse(parent ast.Node, block text.Reader, pc gparser.Context) ast.Node {
 	line, segment := block.PeekLine()
 
 	// First check if this contains an action - if so, treat as URL autolink
