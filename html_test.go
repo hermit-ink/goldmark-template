@@ -113,3 +113,76 @@ func TestHTMLContent(t *testing.T) {
 		})
 	}
 }
+
+func TestHTMLBlocks(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name: "multi-line HTML block with template attributes",
+			input: `<div class="{{ .Class }}"
+     id="{{ .ID }}"
+     data-value="{{ .DataValue }}">
+  <p>Content with {{ .Text }}</p>
+</div>`,
+			expected: `<div class="{{ .Class }}"
+     id="{{ .ID }}"
+     data-value="{{ .DataValue }}">
+  <p>Content with {{ .Text }}</p>
+</div>`,
+		},
+		{
+			name: "HTML block with template in content and attributes",
+			input: `<section data-section="{{ .Section }}">
+  <h1>{{ .Title }}</h1>
+  <p class="{{ .ParagraphClass }}">{{ .Content }}</p>
+</section>`,
+			expected: `<section data-section="{{ .Section }}">
+  <h1>{{ .Title }}</h1>
+  <p class="{{ .ParagraphClass }}">{{ .Content }}</p>
+</section>`,
+		},
+		{
+			name: "nested HTML blocks with templates",
+			input: `<div class="{{ .OuterClass }}">
+  <div class="{{ .InnerClass }}">
+    <span>{{ .Message }}</span>
+  </div>
+</div>`,
+			expected: `<div class="{{ .OuterClass }}">
+  <div class="{{ .InnerClass }}">
+    <span>{{ .Message }}</span>
+  </div>
+</div>`,
+		},
+	}
+
+	md := goldmark.New(
+		goldmark.WithParser(NewParser()),
+		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithRendererOptions(
+			html.WithUnsafe(),
+			html.WithXHTML(),
+		),
+	)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			err := md.Convert([]byte(tt.input), &buf)
+			if err != nil {
+				t.Fatalf("Failed to convert markdown: %v", err)
+			}
+
+			got := strings.TrimSpace(buf.String())
+			expected := strings.TrimSpace(tt.expected)
+
+			if got != expected {
+				t.Errorf("Output mismatch\nInput:    %q\nExpected: %q\nGot:      %q", tt.input, expected, got)
+			}
+		})
+	}
+}
+

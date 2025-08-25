@@ -26,6 +26,10 @@ func NewParser() parser.Parser {
 		parsers = append(parsers, pv)
 	}
 
+	parsers = append(
+		parsers,
+		util.Prioritized(NewTemplateDirectiveParser(), 50))
+
 	pt := parser.DefaultParagraphTransformers()
 	transformers := make([]util.PrioritizedValue, 0, len(pt))
 	for _, pv := range pt {

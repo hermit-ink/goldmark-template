@@ -174,6 +174,8 @@ func (r *Renderer) extractTextContent(n ast.Node, source []byte) []byte {
 		if entering {
 			if text, ok := node.(*ast.Text); ok {
 				buf.Write(text.Segment.Value(source))
+			} else if td, ok := node.(*TemplateDirective); ok {
+				buf.Write(td.Content)
 			}
 		}
 		return ast.WalkContinue, nil
