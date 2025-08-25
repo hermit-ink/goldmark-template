@@ -33,7 +33,7 @@ func TestBasicImages(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
@@ -77,7 +77,7 @@ func TestComplexImageAlt(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
@@ -116,7 +116,7 @@ func TestImageTitles(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),

@@ -10,8 +10,8 @@ import (
 // Extension is a goldmark extension for handling Go template actions
 type Extension struct{}
 
-// NewExtension creates a new goldmark.Extender for template support
-func NewExtension() goldmark.Extender {
+// New creates a new goldmark.Extender for template support
+func New() goldmark.Extender {
 	return &Extension{}
 }
 

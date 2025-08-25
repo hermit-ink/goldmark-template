@@ -34,7 +34,7 @@ func TestNestedTemplates(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithParserOptions(
 			parser.WithAutoHeadingID(),
 		),
@@ -105,7 +105,7 @@ func TestSpecialCharacters(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
@@ -144,7 +144,7 @@ func TestMixedContent(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),

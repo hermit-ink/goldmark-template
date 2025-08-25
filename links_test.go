@@ -43,7 +43,7 @@ func TestBasicLinks(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
@@ -97,7 +97,7 @@ func TestLinkTitles(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
@@ -156,7 +156,7 @@ func TestComplexLinkText(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),

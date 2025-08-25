@@ -43,7 +43,7 @@ func TestHTMLAttributes(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
@@ -87,7 +87,7 @@ func TestHTMLContent(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
@@ -158,7 +158,7 @@ func TestHTMLBlocks(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(NewExtension()),
+		goldmark.WithExtensions(New()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
