@@ -1,0 +1,54 @@
+# Test coverage
+coverage.html
+coverage.out
+*.coverprofile
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Dependency directories
+vendor/
+
+# IDE specific files
+.idea/
+*.swp
+*.swo
+*~
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# Debug files
+debug
+*.pprof
+
+# Temporary files
+*.tmp
+tmp/
+
+# Binary output (if you build any CLI tools)
+bin/
+dist/
+
+# AI assistant config files
+CLAUDE.md
+GEMINI.md
+.aider*
+.cursor/
+.continue/
+.windsurf/
+instructions/
