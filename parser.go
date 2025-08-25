@@ -18,6 +18,10 @@ func NewParser() parser.Parser {
 				parsers = append(parsers, util.Prioritized(NewLinkParser(), 200))
 				continue
 			}
+			if len(t) == 1 && t[0] == '<' && pv.Priority == 300 {
+				parsers = append(parsers, util.Prioritized(NewAutoLinkParser(), 300))
+				continue
+			}
 		}
 		parsers = append(parsers, pv)
 	}
