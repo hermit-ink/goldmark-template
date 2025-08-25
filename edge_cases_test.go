@@ -89,7 +89,7 @@ func TestSpecialCharacters(t *testing.T) {
 			expected: "<p><code>{{ .Start }}content{{ .End }}</code></p>",
 		},
 		{
-			name:     "incomplete template directive",
+			name:     "incomplete template action",
 			input:    "`{{ .Name` without closing",
 			expected: "<p><code>{{ .Name</code> without closing</p>",
 		},

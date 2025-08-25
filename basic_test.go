@@ -96,7 +96,7 @@ func TestCodeBlocks(t *testing.T) {
 			expected: "<pre><code class=\"language-html\">&lt;div&gt;{{ .Content }}&lt;/div&gt;\n</code></pre>",
 		},
 		{
-			name:     "nested template directives",
+			name:     "nested template actions",
 			input:    "`{{ range .Items }}{{ .Name }}{{ end }}`",
 			expected: "<p><code>{{ range .Items }}{{ .Name }}{{ end }}</code></p>",
 		},

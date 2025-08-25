@@ -174,7 +174,7 @@ func (r *Renderer) extractTextContent(n ast.Node, source []byte) []byte {
 		if entering {
 			if text, ok := node.(*ast.Text); ok {
 				buf.Write(text.Segment.Value(source))
-			} else if td, ok := node.(*TemplateDirective); ok {
+			} else if td, ok := node.(*TemplateAction); ok {
 				buf.Write(td.Content)
 			}
 		}
@@ -192,9 +192,9 @@ func (r *Renderer) writeAttribute(w util.BufWriter, name string, value []byte) e
 		return err
 	}
 
-	// For attribute values, if they contain templates, preserve the entire content
-	// to avoid escaping characters between template directives
-	if hasTemplate(value) {
+	// For attribute values, if they contain actions, preserve the entire content
+	// to avoid escaping characters between template actions
+	if hasAction(value) {
 		if _, err := w.Write(value); err != nil {
 			return err
 		}
@@ -228,7 +228,7 @@ func (r *Renderer) renderAutoLink(w util.BufWriter, source []byte, node ast.Node
 	}
 
 	// Use raw write to preserve templates in URLs
-	if hasTemplate(url) {
+	if hasAction(url) {
 		if _, err := w.Write(url); err != nil {
 			return ast.WalkStop, err
 		}

@@ -7,7 +7,7 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-// Writer is a custom HTML writer that preserves Go template directives
+// Writer is a custom HTML writer that preserves Go template actions
 // without HTML escaping them, while properly handling escaped template cases.
 type Writer struct {
 	fallback html.Writer
@@ -30,25 +30,21 @@ func (w *Writer) SecureWrite(writer util.BufWriter, source []byte) {
 	w.fallback.SecureWrite(writer, source)
 }
 
-// RawWrite writes content while preserving Go template directives
+// RawWrite writes content while preserving Go template actions
 func (w *Writer) RawWrite(writer util.BufWriter, source []byte) {
 	n := 0
 	i := 0
 
 	for i < len(source) {
-		// Check for template directive start
-		if i < len(source)-1 && bytes.HasPrefix(source[i:], templatePattern) {
-			// Write everything before the directive (with escaping)
+		if i < len(source)-1 && bytes.HasPrefix(source[i:], actionPattern) {
+			// Write everything before the action (with escaping)
 			if err := w.writeEscaped(writer, source[n:i]); err != nil {
-				// If write fails, attempt to write remaining content and return
 				_ = w.writeEscaped(writer, source[i:])
 				return
 			}
 
-			// Find the end of template directive
-			end := w.findDirectiveEnd(source, i+2)
+			end := w.findActionEnd(source, i+2)
 			if end > 0 {
-				// Write the directive without escaping
 				if _, err := writer.Write(source[i:end]); err != nil {
 					return
 				}
@@ -64,9 +60,9 @@ func (w *Writer) RawWrite(writer util.BufWriter, source []byte) {
 	_ = w.writeEscaped(writer, source[n:])
 }
 
-// findDirectiveEnd finds the end of a template directive, handling nested templates
+// findActionEnd finds the end of a template action, handling nested templates
 // and string literals
-func (w *Writer) findDirectiveEnd(source []byte, start int) int {
+func (w *Writer) findActionEnd(source []byte, start int) int {
 	depth := 1
 	i := start
 	inString := false

@@ -19,7 +19,7 @@ func (e *Extension) Extend(m goldmark.Markdown) {
 	m.Renderer().AddOptions(
 		renderer.WithNodeRenderers(
 			util.Prioritized(NewRenderer(), 100),
-			util.Prioritized(NewTemplateDirectiveHTMLRenderer(), 500),
+			util.Prioritized(NewTemplateActionHTMLRenderer(), 500),
 		),
 	)
 }

@@ -6,10 +6,10 @@ import (
 
 // Template detection utilities
 var (
-	templatePattern = []byte("{{")
+	actionPattern = []byte("{{")
 )
 
-// hasTemplate checks if content contains template directives
-func hasTemplate(content []byte) bool {
-	return bytes.Contains(content, templatePattern)
+// hasAction checks if content contains template actions
+func hasAction(content []byte) bool {
+	return bytes.Contains(content, actionPattern)
 }
