@@ -16,17 +16,17 @@ func TestBasicImages(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "image with template in src",
+			name:     "image with action in src",
 			input:    "![Alt]({{ .ImageURL }})",
 			expected: "<p><img src=\"{{ .ImageURL }}\" alt=\"Alt\" /></p>",
 		},
 		{
-			name:     "image with template in alt and src",
+			name:     "image with action in alt and src",
 			input:    "![{{ .AltText }}]({{ .ImageURL }})",
 			expected: "<p><img src=\"{{ .ImageURL }}\" alt=\"{{ .AltText }}\" /></p>",
 		},
 		{
-			name:     "image with template containing quotes in alt",
+			name:     "image with action containing quotes in alt",
 			input:    "![{{ .Title | quote }}](image.jpg)",
 			expected: "<p><img src=\"image.jpg\" alt=\"{{ .Title | quote }}\" /></p>",
 		},
@@ -111,7 +111,7 @@ func TestImageTitles(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "image with template in alt and title",
+			name:     "image with action in alt and title",
 			input:    `![A picture of {{.Image}}](https://{{.URL}} "{{.Image}} in colour")`,
 			expected: `<p><img src="https://{{.URL}}" alt="A picture of {{.Image}}" title="{{.Image}} in colour" /></p>`,
 		},

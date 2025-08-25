@@ -16,22 +16,22 @@ func TestEmphasis(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "template with asterisks in markdown",
+			name:     "actions with asterisks in markdown",
 			input:    `*{{ .BoldText }}* and **{{ .VeryBold }}**`,
 			expected: `<p><em>{{ .BoldText }}</em> and <strong>{{ .VeryBold }}</strong></p>`,
 		},
 		{
-			name:     "template with underscores in markdown",
+			name:     "actions with underscores in markdown",
 			input:    `_{{ .ItalicText }}_ and __{{ .BoldText }}__`,
 			expected: `<p><em>{{ .ItalicText }}</em> and <strong>{{ .BoldText }}</strong></p>`,
 		},
 		{
-			name:     "template containing asterisks",
+			name:     "action containing asterisks",
 			input:    `{{ printf "*%s*" .Text }}`,
 			expected: `<p>{{ printf "*%s*" .Text }}</p>`,
 		},
 		{
-			name:     "mixed emphasis and templates",
+			name:     "mixed emphasis and actions",
 			input:    `*Bold* and {{ .Template }} and **{{ .BoldTemplate }}**`,
 			expected: `<p><em>Bold</em> and {{ .Template }} and <strong>{{ .BoldTemplate }}</strong></p>`,
 		},
@@ -64,29 +64,29 @@ func TestEmphasis(t *testing.T) {
 	}
 }
 
-func TestComplexTemplateExpressions(t *testing.T) {
+func TestComplexTemplateActions(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
 		expected string
 	}{
 		{
-			name:     "template with markdown-like characters",
+			name:     "action with markdown-like characters",
 			input:    `{{ printf "[%s](%s)" .Title .URL }}`,
 			expected: `<p>{{ printf "[%s](%s)" .Title .URL }}</p>`,
 		},
 		{
-			name:     "template with HTML-like content",
+			name:     "action with HTML-like content",
 			input:    `{{ printf "<div>%s</div>" .Content }}`,
 			expected: `<p>{{ printf "<div>%s</div>" .Content }}</p>`,
 		},
 		{
-			name:     "nested templates with special chars",
+			name:     "nested action with special chars",
 			input:    `{{ if .Show }}{{ printf "*%s*" .Text }}{{ end }}`,
 			expected: `<p>{{ if .Show }}{{ printf "*%s*" .Text }}{{ end }}</p>`,
 		},
 		{
-			name:     "template in code with autolink-like content",
+			name:     "action in code with autolink-like content",
 			input:    "`{{ printf \"<https://example.com>\" }}`",
 			expected: `<p><code>{{ printf "<https://example.com>" }}</code></p>`,
 		},

@@ -23,14 +23,14 @@ func TestReferenceLinks(t *testing.T) {
 			expected: `<p><a href="https://example.com" title="Title">Example</a></p>`,
 		},
 		{
-			name: "reference link with template URL",
+			name: "reference link with action URL",
 			input: `[Example][1]
 
 [1]: {{ .URL }} "Title"`,
 			expected: `<p><a href="{{ .URL }}" title="Title">Example</a></p>`,
 		},
 		{
-			name: "reference link with template URL containing spaces",
+			name: "reference link with action URL containing spaces",
 			input: `[Example][1]
 
 [1]: {{ .Site.BaseURL }}/{{ .RelPermalink }} "{{ .Title }}"`,

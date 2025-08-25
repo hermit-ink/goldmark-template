@@ -17,12 +17,12 @@ func TestWithGFMExtension(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "template with GFM table",
+			name:     "action with GFM table",
 			input:    "| Col |\n|-----|\n| `{{ .Value }}` |",
 			expected: "<table>\n<thead>\n<tr>\n<th>Col</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>{{ .Value }}</code></td>\n</tr>\n</tbody>\n</table>",
 		},
 		{
-			name:     "template with strikethrough",
+			name:     "action with strikethrough",
 			input:    "~~old~~ `{{ .New }}`",
 			expected: "<p><del>old</del> <code>{{ .New }}</code></p>",
 		},
@@ -68,7 +68,7 @@ func BenchmarkTemplateExtension(b *testing.B) {
 		),
 	)
 
-	input := []byte("Text with `{{ .Code }}` and `{{ if .Value > 5 }}high{{ end }}` templates.")
+	input := []byte("Text with `{{ .Code }}` and `{{ if .Value > 5 }}high{{ end }}` action.")
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

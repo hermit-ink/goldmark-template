@@ -92,7 +92,7 @@ func (p *referenceParagraphTransformer) parseLinkReferenceDefinition(block text.
 	block.Advance(1)
 	block.SkipSpaces()
 
-	// Use our template-aware parseLinkDestination function
+	// Use our action-aware parseLinkDestination function
 	destination, ok := parseLinkDestination(block)
 	if !ok {
 		return -1, -1

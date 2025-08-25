@@ -364,9 +364,9 @@ func parseLinkDestination(block text.Reader) ([]byte, bool) {
 	for i < len(line) {
 		c := line[i]
 
-		// Track if we're inside a Go template {{...}}
+		// Track if we're inside a Go template action {{...}}
 		// NOTE: ignoring pathological cases where a }} is inside quotes or
-		// complex template expression. I think this can be worked around
+		// complex template actions. I think this can be worked around
 		// with quoting the curly braces except for {{"}}"}} but cant why would
 		// you need that version?
 		if c == '{' && i < len(line)-1 && line[i+1] == '{' {

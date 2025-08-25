@@ -16,27 +16,27 @@ func TestHTMLAttributes(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "raw HTML with template in attribute",
+			name:     "raw HTML with action in attribute",
 			input:    "<div id=\"{{ .ID }}\">Content</div>",
 			expected: "<div id=\"{{ .ID }}\">Content</div>",
 		},
 		{
-			name:     "raw HTML with template in class attribute",
+			name:     "raw HTML with action in class attribute",
 			input:    "<span class=\"{{ .CSSClass }}\">Text</span>",
 			expected: "<p><span class=\"{{ .CSSClass }}\">Text</span></p>",
 		},
 		{
-			name:     "raw HTML with template containing quotes in attribute",
+			name:     "raw HTML with action containing quotes in attribute",
 			input:    "<div data-value=\"{{ .Value | quote }}\">Content</div>",
 			expected: "<div data-value=\"{{ .Value | quote }}\">Content</div>",
 		},
 		{
-			name:     "raw HTML with multiple template attributes",
+			name:     "raw HTML with multiple action attributes",
 			input:    "<a href=\"{{ .URL }}\" title=\"{{ .Title }}\" class=\"{{ .Class }}\">Link</a>",
 			expected: "<p><a href=\"{{ .URL }}\" title=\"{{ .Title }}\" class=\"{{ .Class }}\">Link</a></p>",
 		},
 		{
-			name:     "raw HTML attribute with nested templates",
+			name:     "raw HTML attribute with nested actions",
 			input:    "<div data-config=\"{{ range .Items }}{{ .Name }},{{ end }}\">Content</div>",
 			expected: "<div data-config=\"{{ range .Items }}{{ .Name }},{{ end }}\">Content</div>",
 		},
@@ -76,12 +76,12 @@ func TestHTMLContent(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "template in raw HTML content",
+			name:     "action in raw HTML content",
 			input:    "<div>{{ .Content }}</div>",
 			expected: "<div>{{ .Content }}</div>",
 		},
 		{
-			name:     "mixed template and HTML with special chars",
+			name:     "mixed action and HTML with special chars",
 			input:    "<p>Value: {{ if .Value > 0 }}{{ .Value }}{{ else }}N/A{{ end }}</p>",
 			expected: "<p>Value: {{ if .Value > 0 }}{{ .Value }}{{ else }}N/A{{ end }}</p>",
 		},
@@ -121,7 +121,7 @@ func TestHTMLBlocks(t *testing.T) {
 		expected string
 	}{
 		{
-			name: "multi-line HTML block with template attributes",
+			name: "multi-line HTML block with actions in the attributes",
 			input: `<div class="{{ .Class }}"
      id="{{ .ID }}"
      data-value="{{ .DataValue }}">
@@ -134,7 +134,7 @@ func TestHTMLBlocks(t *testing.T) {
 </div>`,
 		},
 		{
-			name: "HTML block with template in content and attributes",
+			name: "HTML block with action in content and attributes",
 			input: `<section data-section="{{ .Section }}">
   <h1>{{ .Title }}</h1>
   <p class="{{ .ParagraphClass }}">{{ .Content }}</p>
@@ -145,7 +145,7 @@ func TestHTMLBlocks(t *testing.T) {
 </section>`,
 		},
 		{
-			name: "nested HTML blocks with templates",
+			name: "nested HTML blocks with action",
 			input: `<div class="{{ .OuterClass }}">
   <div class="{{ .InnerClass }}">
     <span>{{ .Message }}</span>

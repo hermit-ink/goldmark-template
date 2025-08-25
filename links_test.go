@@ -16,27 +16,27 @@ func TestBasicLinks(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "link with template in URL",
+			name:     "link with action in URL",
 			input:    "[Link]({{ .URL }})",
 			expected: "<p><a href=\"{{ .URL }}\">Link</a></p>",
 		},
 		{
-			name:     "link with template containing special chars in URL",
+			name:     "link with action containing special chars in URL",
 			input:    "[Link]({{ .BaseURL }}/path?param={{ .Value }})",
 			expected: "<p><a href=\"{{ .BaseURL }}/path?param={{ .Value }}\">Link</a></p>",
 		},
 		{
-			name:     "link with template in title and URL",
+			name:     "link with action in title and URL",
 			input:    "[{{ .Title }}]({{ .URL }})",
 			expected: "<p><a href=\"{{ .URL }}\">{{ .Title }}</a></p>",
 		},
 		{
-			name:     "template with parentheses",
+			name:     "action with parentheses",
 			input:    "[text]({{.Func(arg)}})",
 			expected: "<p><a href=\"{{.Func(arg)}}\">text</a></p>",
 		},
 		{
-			name:     "multiple templates in URL",
+			name:     "multiple action in URL",
 			input:    "[link](https://{{.Host}}/{{.Path}}?id={{.ID}})",
 			expected: "<p><a href=\"https://{{.Host}}/{{.Path}}?id={{.ID}}\">link</a></p>",
 		},
@@ -81,17 +81,17 @@ func TestLinkTitles(t *testing.T) {
 			expected: `<p><a href="{{.URL}}" title="with a title">link</a></p>`,
 		},
 		{
-			name:     "link with template in title",
+			name:     "link with action in title",
 			input:    `[link]({{.URL}} "Title: {{.Title}}")`,
 			expected: `<p><a href="{{.URL}}" title="Title: {{.Title}}">link</a></p>`,
 		},
 		{
-			name:     "mailto with template and title",
+			name:     "mailto with action and title",
 			input:    `[link](mailto:{{.Email}} "Email {{- .Author }}")`,
 			expected: `<p><a href="mailto:{{.Email}}" title="Email {{- .Author }}">link</a></p>`,
 		},
 		{
-			name:     "template with quotes inside",
+			name:     "action with quotes inside",
 			input:    `[link]({{.URL}} "{{.Title | quote}}")`,
 			expected: `<p><a href="{{.URL}}" title="{{.Title | quote}}">link</a></p>`,
 		},
@@ -131,29 +131,29 @@ func TestComplexLinkText(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "bold template in link text",
+			name:     "bold action in link text",
 			input:    "[**{{.BoldTitle}}** with other text]({{.URL}})",
 			expected: `<p><a href="{{.URL}}"><strong>{{.BoldTitle}}</strong> with other text</a></p>`,
 		},
 		{
-			name:     "italic and code with template in link text",
+			name:     "italic and code with action in link text",
 			input:    "[*text* about `{{.CodeReference}}`](https://example.com/{{.Path}})",
 			expected: `<p><a href="https://example.com/{{.Path}}"><em>text</em> about <code>{{.CodeReference}}</code></a></p>`,
 		},
 		{
-			name:     "nested inline styles with templates",
+			name:     "nested inline styles with action",
 			input:    "[**Bold {{.Var1}}** and *italic {{.Var2}}*]({{.URL}})",
 			expected: `<p><a href="{{.URL}}"><strong>Bold {{.Var1}}</strong> and <em>italic {{.Var2}}</em></a></p>`,
 		},
 		{
-			name:     "regular link followed by template link",
-			input:    "[normal](https://example.com) and [template]({{.URL}})",
-			expected: `<p><a href="https://example.com">normal</a> and <a href="{{.URL}}">template</a></p>`,
+			name:     "regular link followed by action link",
+			input:    "[normal](https://example.com) and [action]({{.URL}})",
+			expected: `<p><a href="https://example.com">normal</a> and <a href="{{.URL}}">action</a></p>`,
 		},
 		{
-			name:     "template link followed by regular link",
-			input:    "[template]({{.URL}}) and [normal](https://example.com)",
-			expected: `<p><a href="{{.URL}}">template</a> and <a href="https://example.com">normal</a></p>`,
+			name:     "action link followed by regular link",
+			input:    "[action]({{.URL}}) and [normal](https://example.com)",
+			expected: `<p><a href="{{.URL}}">action</a> and <a href="https://example.com">normal</a></p>`,
 		},
 	}
 

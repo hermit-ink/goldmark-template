@@ -21,22 +21,22 @@ func TestCodeSpans(t *testing.T) {
 			expected: "<p><code>{{ .Name }}</code></p>",
 		},
 		{
-			name:     "template with comparison in code span",
+			name:     "action with comparison in code span",
 			input:    "`{{ if .Value > 5 }}high{{ end }}`",
 			expected: "<p><code>{{ if .Value > 5 }}high{{ end }}</code></p>",
 		},
 		{
-			name:     "template with less than in code span",
+			name:     "action with less than in code span",
 			input:    "`{{ if .Value < 10 }}low{{ end }}`",
 			expected: "<p><code>{{ if .Value < 10 }}low{{ end }}</code></p>",
 		},
 		{
-			name:     "template with ampersand in code span",
+			name:     "action with ampersand in code span",
 			input:    "`{{ .Title & .Subtitle }}`",
 			expected: "<p><code>{{ .Title & .Subtitle }}</code></p>",
 		},
 		{
-			name:     "multiple templates in one code span",
+			name:     "multiple actions in one code span",
 			input:    "`{{ .First }} and {{ .Second }}`",
 			expected: "<p><code>{{ .First }} and {{ .Second }}</code></p>",
 		},
@@ -76,27 +76,27 @@ func TestCodeBlocks(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "simple template in code block",
+			name:     "simple action in code block",
 			input:    "```\n{{ .Name }}\n```",
 			expected: "<pre><code>{{ .Name }}\n</code></pre>",
 		},
 		{
-			name:     "template with HTML chars in code block",
+			name:     "action with HTML chars in code block",
 			input:    "```\n{{ if .Value > 5 }}<div>High</div>{{ end }}\n```",
 			expected: "<pre><code>{{ if .Value > 5 }}&lt;div&gt;High&lt;/div&gt;{{ end }}\n</code></pre>",
 		},
 		{
-			name:     "template in go code block",
+			name:     "action in go code block",
 			input:    "```go\nfmt.Println({{ .Value }})\n```",
 			expected: "<pre><code class=\"language-go\">fmt.Println({{ .Value }})\n</code></pre>",
 		},
 		{
-			name:     "template in html code block",
+			name:     "action in html code block",
 			input:    "```html\n<div>{{ .Content }}</div>\n```",
 			expected: "<pre><code class=\"language-html\">&lt;div&gt;{{ .Content }}&lt;/div&gt;\n</code></pre>",
 		},
 		{
-			name:     "nested template actions",
+			name:     "nested actions",
 			input:    "`{{ range .Items }}{{ .Name }}{{ end }}`",
 			expected: "<p><code>{{ range .Items }}{{ .Name }}{{ end }}</code></p>",
 		},
@@ -146,12 +146,12 @@ func TestEscapedTemplates(t *testing.T) {
 			expected: "<p><code>{{\"}}\"}}</code></p>",
 		},
 		{
-			name:     "mixed escaped and regular templates",
+			name:     "mixed escaped and regular actions",
 			input:    "`{{\"{{\"}}` and `{{ .Name }}`",
 			expected: "<p><code>{{\"{{\"}}</code> and <code>{{ .Name }}</code></p>",
 		},
 		{
-			name:     "escaped templates in code block",
+			name:     "escaped actions in code block",
 			input:    "```\n{{\"{{\"}} and {{\"}}\"}}\n```",
 			expected: "<pre><code>{{\"{{\"}} and {{\"}}\"}}\n</code></pre>",
 		},

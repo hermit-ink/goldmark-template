@@ -16,12 +16,12 @@ func TestAutolinkTemplates(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "template URL in angle brackets should create autolink",
+			name:     "action URL in angle brackets should create autolink",
 			input:    `<{{ .URL }}>`,
 			expected: `<p><a href="{{ .URL }}">{{ .URL }}</a></p>`,
 		},
 		{
-			name:     "template with base URL should create autolink",
+			name:     "action with base URL should create autolink",
 			input:    `<{{ .BaseURL }}/page>`,
 			expected: `<p><a href="{{ .BaseURL }}/page">{{ .BaseURL }}/page</a></p>`,
 		},
@@ -31,7 +31,7 @@ func TestAutolinkTemplates(t *testing.T) {
 			expected: `<p><a href="https://example.com">https://example.com</a></p>`,
 		},
 		{
-			name:     "real email autolink should still work", 
+			name:     "real email autolink should still work",
 			input:    `<user@example.com>`,
 			expected: `<p><a href="mailto:user@example.com">user@example.com</a></p>`,
 		},
@@ -41,7 +41,7 @@ func TestAutolinkTemplates(t *testing.T) {
 			expected: `<p>Visit <a href="{{ .URL }}">{{ .URL }}</a> or <a href="https://example.com">https://example.com</a></p>`,
 		},
 		{
-			name:     "complex template in angle brackets should create autolink",
+			name:     "complex action in angle brackets should create autolink",
 			input:    `<{{ printf "%s/%s" .BaseURL .Path }}>`,
 			expected: `<p><a href="{{ printf "%s/%s" .BaseURL .Path }}">{{ printf "%s/%s" .BaseURL .Path }}</a></p>`,
 		},

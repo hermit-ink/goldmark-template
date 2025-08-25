@@ -193,7 +193,7 @@ func (r *Renderer) writeAttribute(w util.BufWriter, name string, value []byte) e
 	}
 
 	// For attribute values, if they contain actions, preserve the entire content
-	// to avoid escaping characters between template actions
+	// to avoid escaping characters between actions
 	if hasAction(value) {
 		if _, err := w.Write(value); err != nil {
 			return err

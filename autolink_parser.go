@@ -12,7 +12,8 @@ import (
 type autoLinkParser struct {
 }
 
-// NewAutoLinkParser returns a new InlineParser that parses autolinks with template support
+// NewAutoLinkParser returns a new InlineParser that parses autolinks with Go
+// template action support
 func NewAutoLinkParser() parser.InlineParser {
 	return &autoLinkParser{}
 }
@@ -23,24 +24,27 @@ func (s *autoLinkParser) Trigger() []byte {
 
 func (s *autoLinkParser) Parse(parent ast.Node, block text.Reader, pc parser.Context) ast.Node {
 	line, segment := block.PeekLine()
-	
-	// First check if this contains a template - if so, treat as URL autolink
+
+	// First check if this contains an action - if so, treat as URL autolink
 	content := line[1:] // Skip opening '<'
 	closePos := bytes.IndexByte(content, '>')
 	if closePos < 0 {
 		return nil
 	}
-	
+
 	urlContent := content[:closePos]
-	
+
 	// Only treat as autolink if content STARTS with template
+	// TODO: Support `<https://hermit.ink/{{.Foo}}>` this is harder because
+	// we don't want to accidentally hijack the raw HTML parser making raw
+	// HTML an autolink
 	if len(urlContent) >= 2 && urlContent[0] == '{' && urlContent[1] == '{' {
-		stop := closePos + 1 // +1 for the '>' 
+		stop := closePos + 1 // +1 for the '>'
 		value := ast.NewTextSegment(text.NewSegment(segment.Start+1, segment.Start+stop))
 		block.Advance(stop + 1)
 		return ast.NewAutoLink(ast.AutoLinkURL, value)
 	}
-	
+
 	// Otherwise, use goldmark's original logic
 	stop := util.FindEmailIndex(line[1:])
 	typ := ast.AutoLinkType(ast.AutoLinkEmail)

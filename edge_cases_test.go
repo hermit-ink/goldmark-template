@@ -17,17 +17,17 @@ func TestNestedTemplates(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "template with string containing braces",
+			name:     "action with string containing braces",
 			input:    "`{{ printf \"Value: %d\" .Count }}`",
 			expected: "<p><code>{{ printf \"Value: %d\" .Count }}</code></p>",
 		},
 		{
-			name:     "template with string containing }}",
+			name:     "action with string containing }}",
 			input:    "`{{ \"a string with }}\" }}`",
 			expected: "<p><code>{{ \"a string with }}\" }}</code></p>",
 		},
 		{
-			name:     "deeply nested templates",
+			name:     "deeply nested actions",
 			input:    "`{{ if .A }}{{ if .B }}{{ .C }}{{ end }}{{ end }}`",
 			expected: "<p><code>{{ if .A }}{{ if .B }}{{ .C }}{{ end }}{{ end }}</code></p>",
 		},
@@ -74,7 +74,7 @@ func TestSpecialCharacters(t *testing.T) {
 			expected: "<p><code>{{}}</code></p>",
 		},
 		{
-			name:     "template with only spaces",
+			name:     "action with only spaces",
 			input:    "`{{   }}`",
 			expected: "<p><code>{{   }}</code></p>",
 		},
@@ -84,7 +84,7 @@ func TestSpecialCharacters(t *testing.T) {
 			expected: "<p><code>{{ {{ .Name }}</code></p>",
 		},
 		{
-			name:     "template at start and end",
+			name:     "action at start and end",
 			input:    "`{{ .Start }}content{{ .End }}`",
 			expected: "<p><code>{{ .Start }}content{{ .End }}</code></p>",
 		},
@@ -94,12 +94,12 @@ func TestSpecialCharacters(t *testing.T) {
 			expected: "<p><code>{{ .Name</code> without closing</p>",
 		},
 		{
-			name:     "template with backticks in string",
+			name:     "action with backticks in string",
 			input:    "`{{ `raw string` }}`",
 			expected: "<p><code>{{ </code>raw string<code> }}</code></p>",
 		},
 		{
-			name:     "non-template content with special chars",
+			name:     "action content with special chars",
 			input:    "`<div>&amp;</div>`",
 			expected: "<p><code>&lt;div&gt;&amp;amp;&lt;/div&gt;</code></p>",
 		},

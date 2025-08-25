@@ -1,4 +1,4 @@
-module github.com/raoulmillais/goldmark-test
+module github.com/hermit-ink/goldmark-template
 
 go 1.22
 
