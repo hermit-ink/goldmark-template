@@ -18,6 +18,7 @@ func NewExtension() goldmark.Extender {
 // Extend configures the markdown processor to use our custom template action
 // handling
 func (e *Extension) Extend(m goldmark.Markdown) {
+	m.SetParser(ActionAwareParsers())
 	m.Renderer().AddOptions(
 		renderer.WithNodeRenderers(
 			util.Prioritized(html.NewRenderer(), 100),

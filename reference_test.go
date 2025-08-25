@@ -61,7 +61,6 @@ func TestReferenceLinks(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithParser(NewParser()),
 		goldmark.WithExtensions(NewExtension()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),

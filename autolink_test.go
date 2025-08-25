@@ -48,7 +48,6 @@ func TestAutolinkTemplates(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithParser(NewParser()),
 		goldmark.WithExtensions(NewExtension()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),

@@ -43,7 +43,6 @@ func TestCodeSpans(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithParser(NewParser()),
 		goldmark.WithExtensions(NewExtension()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
@@ -103,7 +102,6 @@ func TestCodeBlocks(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithParser(NewParser()),
 		goldmark.WithExtensions(NewExtension()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
@@ -158,7 +156,6 @@ func TestEscapedTemplates(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithParser(NewParser()),
 		goldmark.WithExtensions(NewExtension()),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
