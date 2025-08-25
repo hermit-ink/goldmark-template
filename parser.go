@@ -5,7 +5,7 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-// NewParser creates a parser with our custom link parser replacing the default
+// NewParser creates a parser with our custom link parser and reference parser replacing the defaults
 func NewParser() parser.Parser {
 	ip := parser.DefaultInlineParsers()
 
@@ -22,9 +22,21 @@ func NewParser() parser.Parser {
 		parsers = append(parsers, pv)
 	}
 
+	pt := parser.DefaultParagraphTransformers()
+	transformers := make([]util.PrioritizedValue, 0, len(pt))
+	for _, pv := range pt {
+		if pv.Value != parser.LinkReferenceParagraphTransformer {
+			transformers = append(transformers, pv)
+		}
+	}
+	// Add our custom reference paragraph transformer
+	transformers = append(
+		transformers,
+		util.Prioritized(NewReferenceParagraphTransformer(), 999))
+
 	return parser.NewParser(
 		parser.WithBlockParsers(parser.DefaultBlockParsers()...),
 		parser.WithInlineParsers(parsers...),
-		parser.WithParagraphTransformers(parser.DefaultParagraphTransformers()...),
+		parser.WithParagraphTransformers(transformers...),
 	)
 }
