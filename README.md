@@ -42,7 +42,7 @@ import (
 func main() {
     md := goldmark.New(
         goldmark.WithExtensions(
-            goldmarktemplate.NewExtension(),
+            goldmarktemplate.New(),
         ),
         goldmark.WithRendererOptions(
             html.WithUnsafe(), // Required for template preservation
@@ -64,7 +64,7 @@ func main() {
 ```go
 md := goldmark.New(
     goldmark.WithExtensions(
-        goldmarktemplate.NewExtension(), // Must come FIRST
+        goldmarktemplate.New(), // Must come FIRST
         extension.GFM,
     ),
     goldmark.WithRendererOptions(
@@ -145,8 +145,8 @@ Always register `goldmark-template` **BEFORE** other extensions that might inter
 
 ```go
 goldmark.WithExtensions(
-    goldmarktemplate.NewExtension(), // First
-    extension.GFM,                    // Second
+    goldmarktemplate.New(), // First
+    extension.GFM,
 )
 ```
 
