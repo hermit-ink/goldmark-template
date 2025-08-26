@@ -8,6 +8,13 @@
 
 A [goldmark](https://github.com/yuin/goldmark) extension that preserves Go template actions (`{{...}}`) in rendered Markdown, preventing HTML escaping and maintaining template syntax wherever it appears so that the HTML output can be used directly by the Go stdlib html/template
 
+## Motivation
+
+You want to use go html/template actions in your markdown.  Markdown is not HTML so you can't execute the markdown as a template and you might not want to do that anyway.  Instead you want to goldmark to simply "ignore" all the go template actions putting them verbatim into the correct places in the output HTML so that you can execute the output from goldmark using go's html/template package.
+
+> [!WARNING]
+> This makes your goldmark instance no longer commonmark compliant since go template actions are not valid URLs and you want to be able to use a template action in place of a URL potentially.
+
 ## Features
 
 -  **Preserves template actions** in inline code and code blocks
@@ -16,6 +23,7 @@ A [goldmark](https://github.com/yuin/goldmark) extension that preserves Go templ
 -  **Standalone template actions** as inline elements
 -  **Full compatibility** with other goldmark extensions (GFM, etc.)
 -  **Smart parsing** that handles quotes and nested braces correctly
+-  **Comprehensive testing** for 100% compatibility with the existing goldmark parsers and renderers
 
 ## Installation
 
