@@ -27,22 +27,30 @@ func (s *templateActionParser) Parse(parent gast.Node, block text.Reader, pc gpa
 	if len(line) < 2 || line[0] != '{' || line[1] != '{' {
 		return nil
 	}
+	
 
 	i := 2
-	// TODO: backticks
 	inDoubleQuotes := false
 	inSingleQuotes := false
+	inBackticks := false
 
 	for i < len(line)-1 {
 		char := line[i]
 
-		if char == '"' && !inSingleQuotes {
-			inDoubleQuotes = !inDoubleQuotes
-		} else if char == '\'' && !inDoubleQuotes {
-			inSingleQuotes = !inSingleQuotes
+		// Check if current character is escaped (but not inside backticks where escapes don't exist)
+		isEscaped := !inBackticks && i > 0 && line[i-1] == '\\'
+
+		if !isEscaped {
+			if char == '"' && !inSingleQuotes && !inBackticks {
+				inDoubleQuotes = !inDoubleQuotes
+			} else if char == '\'' && !inDoubleQuotes && !inBackticks {
+				inSingleQuotes = !inSingleQuotes
+			} else if char == '`' && !inDoubleQuotes && !inSingleQuotes {
+				inBackticks = !inBackticks
+			}
 		}
 
-		if !inDoubleQuotes && !inSingleQuotes && char == '}' && line[i+1] == '}' {
+		if !inDoubleQuotes && !inSingleQuotes && !inBackticks && char == '}' && line[i+1] == '}' {
 			content := line[0 : i+2]
 			nodeSegment := segment.WithStop(segment.Start + i + 2)
 			node := ast.NewTemplateAction(content, nodeSegment)

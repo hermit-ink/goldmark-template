@@ -102,6 +102,16 @@ func TestSpecialCharacters(t *testing.T) {
 			input:    "`<div>&amp;</div>`",
 			expected: "<p><code>&lt;div&gt;&amp;amp;&lt;/div&gt;</code></p>",
 		},
+		{
+			name:     "simple backtick test",
+			input:    "{{ `}}` }}",
+			expected: "<p>{{ `}}` }}</p>",
+		},
+		{
+			name:     "backtick with quotes - template should parse correctly",
+			input:    "{{ `}}` \"test\" }}",
+			expected: "<p>{{ `}}` \"test\" }}</p>",
+		},
 	}
 
 	md := goldmark.New(

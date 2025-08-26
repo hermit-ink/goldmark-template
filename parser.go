@@ -37,7 +37,7 @@ func ActionAwareParsers() gparser.Parser {
 
 	parsers = append(
 		parsers,
-		util.Prioritized(parser.NewTemplateActionParser(), 50))
+		util.Prioritized(parser.NewTemplateActionParser(), 600))
 
 	pt := gparser.DefaultParagraphTransformers()
 	transformers := make([]util.PrioritizedValue, 0, len(pt))
