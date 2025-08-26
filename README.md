@@ -45,7 +45,7 @@ func main() {
             goldmarktemplate.New(),
         ),
         goldmark.WithRendererOptions(
-            html.WithUnsafe(), // Required for template preservation
+            html.WithUnsafe(), // Required for action preservation in raw HTML
         ),
     )
 
@@ -84,7 +84,7 @@ Block:
 func main() {
     fmt.Println("{{ .Message }}")
 }
-```
+\`\`\`
 ```
 
 Output:
@@ -98,6 +98,7 @@ Output:
 
 ### Template Actions in Links and Images
 
+Input:
 ```markdown
 [{{ .LinkText }}]({{ .URL }})
 ![{{ .Alt }}]({{ .ImagePath }})
@@ -188,22 +189,26 @@ make lint
 make test-coverage
 ```
 
-## Architecture
+## Notes
 
 The extension follows goldmark's established patterns:
 
-- **Custom Parsers**: Template-aware parsers for links, autolinks, and reference definitions
+- **Custom Parsers**: Template-aware parsers for links, autolinks, and reference
+definitions.  These are taken directly from the goldmark source with the minimal
+possible changes to allow template actions to be preserved untouched.
 - **Custom Renderers**:
-  - `TemplatePreservingRenderer` - Overrides standard elements to preserve templates
+  - `Renderer` - Overrides standard elements to preserve template actions properly
+  within attributes
   - `TemplateActionHTMLRenderer` - Renders standalone template actions
-- **Custom AST Node**: `TemplateAction` for standalone template expressions
+- **Custom AST Node**: `TemplateAction` for actions that do not appear in positions
+controlled by other parsers such as images and links
 
 ## Contributing
 
 Contributions are welcome! Please ensure:
 1. All tests pass
-2. Code is properly formatted (`gofmt`)
-3. Linting passes (`golangci-lint`)
+2. Code is properly formatted (`make fmt`)
+3. Linting passes (`make lint`)
 4. New features include tests
 
 ## License
