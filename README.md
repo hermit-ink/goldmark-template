@@ -77,15 +77,15 @@ md := goldmark.New(
 
 ### Template Actions in Code
 
-```markdown
+`````markdown
 Inline: `{{ .Variable }}`
 Block:
 ```go
 func main() {
     fmt.Println("{{ .Message }}")
 }
-\`\`\`
 ```
+`````
 
 Output:
 ```html
