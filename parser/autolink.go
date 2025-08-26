@@ -3,6 +3,7 @@ package parser
 import (
 	"bytes"
 
+	tutil "github.com/hermit-ink/goldmark-template/util"
 	"github.com/yuin/goldmark/ast"
 	gparser "github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
@@ -48,7 +49,7 @@ func (s *autoLinkParser) Parse(parent ast.Node, block text.Reader, pc gparser.Co
 	// If it starts with a URL-like string (util.FindURLIndex) and it has a
 	// template action in it then construct an autolink ast node and return it
 	// <https://......{{.Something}}>
-	if util.FindURLIndex(urlContent) > 0 && containsTemplateAction(urlContent) {
+	if util.FindURLIndex(urlContent) > 0 && tutil.ContainsAction(urlContent) {
 		stop := closePos + 1 // +1 for the '>'
 		value := ast.NewTextSegment(text.NewSegment(segment.Start+1, segment.Start+stop))
 		block.Advance(stop + 1)

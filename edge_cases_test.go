@@ -80,7 +80,7 @@ func TestSpecialCharacters(t *testing.T) {
 		{
 			name:     "unmatched opening braces",
 			input:    "`{{ {{ .Name }}`",
-			expected: "<p><code>{{ {{ .Name }}</code></p>",
+			expected: "<p>`{{ {{ .Name }}`</p>",
 		},
 		{
 			name:     "action at start and end",
@@ -90,12 +90,12 @@ func TestSpecialCharacters(t *testing.T) {
 		{
 			name:     "incomplete template action",
 			input:    "`{{ .Name` without closing",
-			expected: "<p><code>{{ .Name</code> without closing</p>",
+			expected: "<p>`{{ .Name` without closing</p>",
 		},
 		{
 			name:     "action with backticks in string",
 			input:    "`{{ `raw string` }}`",
-			expected: "<p><code>{{ </code>raw string<code> }}</code></p>",
+			expected: "<p><code>{{ `raw string` }}</code></p>",
 		},
 		{
 			name:     "action content with special chars",
@@ -111,6 +111,11 @@ func TestSpecialCharacters(t *testing.T) {
 			name:     "backtick with quotes - template should parse correctly",
 			input:    "{{ `}}` \"test\" }}",
 			expected: "<p>{{ `}}` \"test\" }}</p>",
+		},
+		{
+			name:     "backtick string should not close template early - quotes should not be escaped", 
+			input:    "`{{ `}}` \"test\" }}`",
+			expected: "<p><code>{{ `}}` \"test\" }}</code></p>",
 		},
 	}
 

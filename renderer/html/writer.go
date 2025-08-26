@@ -3,6 +3,7 @@ package html
 import (
 	"bytes"
 
+	tutil "github.com/hermit-ink/goldmark-template/util"
 	ghtml "github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/util"
 )
@@ -46,26 +47,30 @@ func (w *Writer) RawWrite(writer util.BufWriter, source []byte) {
 	i := 0
 
 	for i < len(source) {
-		if i < len(source)-1 && bytes.HasPrefix(source[i:], actionPattern) {
-			// Write everything before the action (with escaping)
-			if err := w.writeEscaped(writer, source[n:i]); err != nil {
-				_ = w.writeEscaped(writer, source[i:])
-				return
-			}
-
-			end := w.findActionEnd(source, i+2)
-			if end > 0 {
-				if _, err := writer.Write(source[i:end]); err != nil {
-					return
-				}
-				n = end
-				i = end
-			} else {
-				i++
-			}
-		} else {
+		// Skip non-template characters
+		if i >= len(source)-1 || !bytes.HasPrefix(source[i:], actionPattern) {
 			i++
+			continue
 		}
+
+		// Write everything before the action (with escaping)
+		if err := w.writeEscaped(writer, source[n:i]); err != nil {
+			_ = w.writeEscaped(writer, source[i:])
+			return
+		}
+
+		// Find and write the complete template action
+		end := tutil.FindActionEnd(source, i)
+		if end <= 0 {
+			i++
+			continue
+		}
+
+		if _, err := writer.Write(source[i:end]); err != nil {
+			return
+		}
+		n = end
+		i = end
 	}
 
 	// Write remaining content (with escaping)
@@ -102,23 +107,3 @@ func (w *Writer) writeEscaped(writer util.BufWriter, source []byte) error {
 	return nil
 }
 
-func (w *Writer) findActionEnd(source []byte, start int) int {
-	inDoubleQuotes := false
-	inSingleQuotes := false
-
-	for i := start; i < len(source)-1; i++ {
-		char := source[i]
-
-		if char == '"' && !inSingleQuotes {
-			inDoubleQuotes = !inDoubleQuotes
-		} else if char == '\'' && !inDoubleQuotes {
-			inSingleQuotes = !inSingleQuotes
-		}
-
-		if !inDoubleQuotes && !inSingleQuotes && char == '}' && source[i+1] == '}' {
-			return i + 2
-		}
-	}
-
-	return -1
-}

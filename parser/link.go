@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	tutil "github.com/hermit-ink/goldmark-template/util"
 	"github.com/yuin/goldmark/ast"
 	gparser "github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
@@ -402,7 +403,7 @@ func parseLinkDestination(block text.Reader) ([]byte, bool) {
 	dest := line[:i]
 
 	// Templates are always valid, otherwise use original validation
-	if containsTemplateAction(dest) {
+	if tutil.ContainsAction(dest) {
 		return dest, true
 	}
 

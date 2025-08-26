@@ -31,6 +31,13 @@ func ActionAwareParsers() gparser.Parser {
 					util.Prioritized(parser.NewAutoLinkParser(), 300))
 				continue
 			}
+			if len(t) == 1 && t[0] == '`' && pv.Priority == 100 {
+				// Replace goldmark's code span parser with our template-aware version
+				parsers = append(
+					parsers,
+					util.Prioritized(parser.NewCodeSpanParser(), 100))
+				continue
+			}
 		}
 		parsers = append(parsers, pv)
 	}
