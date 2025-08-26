@@ -10,7 +10,7 @@ import (
 	"github.com/yuin/goldmark/renderer/html"
 )
 
-func TestNestedTemplates(t *testing.T) {
+func TestNestedActions(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
@@ -113,7 +113,7 @@ func TestSpecialCharacters(t *testing.T) {
 			expected: "<p>{{ `}}` \"test\" }}</p>",
 		},
 		{
-			name:     "backtick string should not close template early - quotes should not be escaped", 
+			name:     "backtick string should not close template early - quotes should not be escaped",
 			input:    "`{{ `}}` \"test\" }}`",
 			expected: "<p><code>{{ `}}` \"test\" }}</code></p>",
 		},
