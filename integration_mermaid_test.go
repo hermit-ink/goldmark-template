@@ -2,6 +2,7 @@ package goldmarktemplate
 
 import (
 	"bytes"
+	"os/exec"
 	"strings"
 	"testing"
 
@@ -11,6 +12,10 @@ import (
 )
 
 func TestMermaidIntegration(t *testing.T) {
+	// Skip if mmdc (mermaid CLI) is not available (e.g., in CI environments)
+	if _, err := exec.LookPath("mmdc"); err != nil {
+		t.Skip("mmdc (mermaid CLI) not available, skipping server-side mermaid integration test")
+	}
 	tests := []struct {
 		name                 string
 		input                string

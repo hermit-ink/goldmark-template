@@ -33,6 +33,8 @@ tools:
 	go install mvdan.cc/gofumpt@latest
 	go install gotest.tools/gotestsum@latest
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin
+
+tools-mermaid:
 	npm install -g @mermaid-js/mermaid-cli
 
 help:
@@ -46,4 +48,5 @@ help:
 	@echo "  vet            - Run go vet"
 	@echo "  bench          - Run benchmarks"
 	@echo "  tools          - Install development tools"
+	@echo "  tools-mermaid  - Install mermaid CLI for integration tests"
 	@echo "  help           - Show this help message"
