@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/hermit-ink/goldmark-template/ast"
+	tutil "github.com/hermit-ink/goldmark-template/util"
 	gast "github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/renderer"
 	ghtml "github.com/yuin/goldmark/renderer/html"
@@ -193,18 +194,90 @@ func (r *Renderer) writeAttribute(w util.BufWriter, name string, value []byte) e
 		return err
 	}
 
-	// For attribute values, if they contain actions, preserve the entire content
-	// to avoid escaping characters between actions
+	// Determine if this is a URL attribute that needs URL escaping
+	isURLAttribute := name == "href" || name == "src"
+	
 	if hasAction(value) {
-		if _, err := w.Write(value); err != nil {
-			return err
-		}
+		// For values with templates, we need to handle URL vs HTML escaping properly
+		r.writeAttributeWithTemplates(w, value, isURLAttribute)
 	} else {
-		r.Writer.RawWrite(w, value)
+		// For values without templates, use goldmark's standard processing
+		if isURLAttribute {
+			// URL attributes need URL escaping then HTML escaping (like goldmark does)
+			urlEscaped := util.URLEscape(value, true)
+			htmlEscaped := util.EscapeHTML(urlEscaped)
+			if _, err := w.Write(htmlEscaped); err != nil {
+				return err
+			}
+		} else {
+			// Non-URL attributes just need HTML escaping
+			r.Writer.RawWrite(w, value)
+		}
 	}
 
 	if _, err := w.WriteString("\""); err != nil {
 		return err
+	}
+	return nil
+}
+
+// writeAttributeWithTemplates handles attribute values containing template actions
+func (r *Renderer) writeAttributeWithTemplates(w util.BufWriter, value []byte, isURLAttribute bool) error {
+	actionPattern := []byte("{{")
+	n := 0
+	i := 0
+
+	for i < len(value) {
+		// Skip non-template characters
+		if i >= len(value)-1 || !bytes.HasPrefix(value[i:], actionPattern) {
+			i++
+			continue
+		}
+
+		// Process everything before the action
+		if n < i {
+			beforeAction := value[n:i]
+			if isURLAttribute {
+				// URL attributes need URL escaping then HTML escaping (like goldmark does)
+				urlEscaped := util.URLEscape(beforeAction, true)
+				htmlEscaped := util.EscapeHTML(urlEscaped)
+				if _, err := w.Write(htmlEscaped); err != nil {
+					return err
+				}
+			} else {
+				// Non-URL attributes just need HTML escaping
+				r.Writer.RawWrite(w, beforeAction)
+			}
+		}
+
+		// Find and write the complete template action verbatim
+		end := tutil.FindActionEnd(value, i)
+		if end <= 0 {
+			i++
+			continue
+		}
+
+		if _, err := w.Write(value[i:end]); err != nil {
+			return err
+		}
+		n = end
+		i = end
+	}
+
+	// Process remaining content
+	if n < len(value) {
+		remaining := value[n:]
+		if isURLAttribute {
+			// URL attributes need URL escaping then HTML escaping (like goldmark does)
+			urlEscaped := util.URLEscape(remaining, true)
+			htmlEscaped := util.EscapeHTML(urlEscaped)
+			if _, err := w.Write(htmlEscaped); err != nil {
+				return err
+			}
+		} else {
+			// Non-URL attributes just need HTML escaping
+			r.Writer.RawWrite(w, remaining)
+		}
 	}
 	return nil
 }

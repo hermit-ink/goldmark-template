@@ -31,18 +31,35 @@ func NewWriter(opts ...ghtml.WriterOption) ghtml.Writer {
 	}
 }
 
-// Write writes content with normal processing
+// Write writes content with normal processing (includes entity resolution and backslash unescaping)
 func (w *Writer) Write(writer util.BufWriter, source []byte) {
-	w.fallback.Write(writer, source)
+	if hasAction(source) {
+		w.writeWithTemplateSupport(writer, source, true)
+	} else {
+		w.fallback.Write(writer, source)
+	}
 }
 
 // SecureWrite writes content with security filtering
 func (w *Writer) SecureWrite(writer util.BufWriter, source []byte) {
-	w.fallback.SecureWrite(writer, source)
+	if hasAction(source) {
+		w.writeWithTemplateSupport(writer, source, false)
+	} else {
+		w.fallback.SecureWrite(writer, source)
+	}
 }
 
-// RawWrite writes content while preserving Go template actions
+// RawWrite writes content while preserving Go template actions (HTML escaping only)
 func (w *Writer) RawWrite(writer util.BufWriter, source []byte) {
+	if hasAction(source) {
+		w.writeWithTemplateSupport(writer, source, false)
+	} else {
+		w.fallback.RawWrite(writer, source)
+	}
+}
+
+// writeWithTemplateSupport handles content with template actions
+func (w *Writer) writeWithTemplateSupport(writer util.BufWriter, source []byte, processEntities bool) {
 	n := 0
 	i := 0
 
@@ -53,13 +70,17 @@ func (w *Writer) RawWrite(writer util.BufWriter, source []byte) {
 			continue
 		}
 
-		// Write everything before the action (with escaping)
-		if err := w.writeEscaped(writer, source[n:i]); err != nil {
-			_ = w.writeEscaped(writer, source[i:])
-			return
+		// Process everything before the action using goldmark's methods
+		if n < i {
+			beforeAction := source[n:i]
+			if processEntities {
+				w.fallback.Write(writer, beforeAction)
+			} else {
+				w.fallback.RawWrite(writer, beforeAction)
+			}
 		}
 
-		// Find and write the complete template action
+		// Find and write the complete template action verbatim
 		end := tutil.FindActionEnd(source, i)
 		if end <= 0 {
 			i++
@@ -73,37 +94,14 @@ func (w *Writer) RawWrite(writer util.BufWriter, source []byte) {
 		i = end
 	}
 
-	// Write remaining content (with escaping)
+	// Process remaining content using goldmark's methods
 	if n < len(source) {
-		_ = w.writeEscaped(writer, source[n:])
-	}
-}
-
-func (w *Writer) writeEscaped(writer util.BufWriter, source []byte) error {
-	for _, b := range source {
-		switch b {
-		case '<':
-			if _, err := writer.WriteString("&lt;"); err != nil {
-				return err
-			}
-		case '>':
-			if _, err := writer.WriteString("&gt;"); err != nil {
-				return err
-			}
-		case '&':
-			if _, err := writer.WriteString("&amp;"); err != nil {
-				return err
-			}
-		case '"':
-			if _, err := writer.WriteString("&quot;"); err != nil {
-				return err
-			}
-		default:
-			if err := writer.WriteByte(b); err != nil {
-				return err
-			}
+		remaining := source[n:]
+		if processEntities {
+			w.fallback.Write(writer, remaining)
+		} else {
+			w.fallback.RawWrite(writer, remaining)
 		}
 	}
-	return nil
 }
 

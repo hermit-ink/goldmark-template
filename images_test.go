@@ -72,7 +72,7 @@ func TestComplexImageAlt(t *testing.T) {
 		{
 			name:     "image alt with HTML chars and templates",
 			input:    "![{{ .Title }} > {{ .Subtitle }}](image.jpg)",
-			expected: "<p><img src=\"image.jpg\" alt=\"{{ .Title }} > {{ .Subtitle }}\" /></p>",
+			expected: "<p><img src=\"image.jpg\" alt=\"{{ .Title }} &gt; {{ .Subtitle }}\" /></p>",
 		},
 	}
 
