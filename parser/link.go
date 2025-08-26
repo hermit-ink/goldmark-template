@@ -363,25 +363,13 @@ func parseLinkDestination(block text.Reader) ([]byte, bool) {
 	}
 	opened := 0
 	i := 0
-	insideTemplate := false
+	actionTracker := tutil.NewActionState()
 
 	for i < len(line) {
 		c := line[i]
 
-		// Track if we're inside a Go template action {{...}}
-		// NOTE: ignoring pathological cases where a }} is inside quotes or
-		// complex template actions. I think this can be worked around
-		// with quoting the curly braces except for {{"}}"}} but cant why would
-		// you need that version?
-		if c == '{' && i < len(line)-1 && line[i+1] == '{' {
-			insideTemplate = true
-			i += 2 // Skip both '{{'
-			continue
-		} else if c == '}' && i < len(line)-1 && line[i+1] == '}' && insideTemplate {
-			insideTemplate = false
-			i += 2 // Skip both '}}'
-			continue
-		}
+		// Track template action state using our robust tracker
+		actionTracker.ProcessChar(line, i)
 
 		if c == '\\' && i < len(line)-1 && util.IsPunct(line[i+1]) {
 			i += 2
@@ -393,7 +381,7 @@ func parseLinkDestination(block text.Reader) ([]byte, bool) {
 			if opened < 0 {
 				break
 			}
-		} else if util.IsSpace(c) && opened == 0 && !insideTemplate {
+		} else if util.IsSpace(c) && opened == 0 && !actionTracker.InAction() {
 			// Only break on spaces if we're not inside a template
 			break
 		}
