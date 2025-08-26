@@ -1,6 +1,7 @@
 package goldmarktemplate
 
 import (
+	"github.com/hermit-ink/goldmark-template/parser"
 	"github.com/hermit-ink/goldmark-template/renderer/html"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/renderer"
@@ -18,7 +19,7 @@ func New() goldmark.Extender {
 // Extend configures the markdown processor to use our custom template action
 // handling
 func (e *Extension) Extend(m goldmark.Markdown) {
-	m.SetParser(ActionAwareParsers())
+	m.SetParser(parser.ActionAwareParsers())
 	m.Renderer().AddOptions(
 		renderer.WithNodeRenderers(
 			util.Prioritized(html.NewRenderer(), 100),
