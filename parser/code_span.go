@@ -45,17 +45,6 @@ func (s *codeSpanParser) Parse(parent ast.Node, block text.Reader, pc Context) a
 			// Track template action state
 			tracker.ProcessChar(line, i)
 
-			// Skip closing }} when processing template actions
-			if tracker.InAction() && i < len(line)-1 && c == '}' && line[i+1] == '}' {
-				i++ // Skip the second '}'
-				continue
-			}
-			// Skip opening {{ when processing template actions
-			if i < len(line)-1 && c == '{' && line[i+1] == '{' {
-				i++ // Skip the second '{'
-				continue
-			}
-
 			if c == '`' && !tracker.InAction() {
 				oldi := i
 				for ; i < len(line) && line[i] == '`'; i++ {
