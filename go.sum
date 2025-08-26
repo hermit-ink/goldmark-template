@@ -1,2 +1,4 @@
 github.com/yuin/goldmark v1.7.13 h1:GPddIs617DnBLFFVJFgpo1aBfe/4xcvMc3SB5t/D0pA=
 github.com/yuin/goldmark v1.7.13/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=
+go.abhg.dev/goldmark/mermaid v0.5.0 h1:mDkykpSPJ+5wCQ8bSXgzJ2KQskjXkI5Ndxz7JYDHW38=
+go.abhg.dev/goldmark/mermaid v0.5.0/go.mod h1:OCyk2o85TX2drWHH+HRy6bih2yZlUwbbv/R1MMh1YLs=

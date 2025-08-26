@@ -33,6 +33,7 @@ tools:
 	go install mvdan.cc/gofumpt@latest
 	go install gotest.tools/gotestsum@latest
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin
+	npm install -g @mermaid-js/mermaid-cli
 
 help:
 	@echo "Available targets:"
