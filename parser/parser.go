@@ -16,7 +16,7 @@ func ActionAwareParsers() gparser.Parser {
 	}
 
 	paragraphTransformers := []util.PrioritizedValue{
-		util.Prioritized(NewReferenceParagraphTransformer(), 100),
+		util.Prioritized(LinkReferenceParagraphTransformer, 100),
 	}
 
 	return gparser.NewParser(

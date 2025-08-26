@@ -7,19 +7,23 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-type referenceParagraphTransformer struct{}
+var (
+	NewReference = gparser.NewReference
+)
 
-// NewReferenceParagraphTransformer creates a new paragraph transformer for template-aware reference definitions
-func NewReferenceParagraphTransformer() gparser.ParagraphTransformer {
-	return &referenceParagraphTransformer{}
+type linkReferenceParagraphTransformer struct {
 }
 
-func (p *referenceParagraphTransformer) Transform(node *ast.Paragraph, reader text.Reader, pc gparser.Context) {
+// LinkReferenceParagraphTransformer is a ParagraphTransformer implementation
+// that parses and extracts link reference from paragraphs.
+var LinkReferenceParagraphTransformer = &linkReferenceParagraphTransformer{}
+
+func (p *linkReferenceParagraphTransformer) Transform(node *ast.Paragraph, reader text.Reader, pc Context) {
 	lines := node.Lines()
 	block := text.NewBlockReader(reader.Source(), lines)
 	removes := [][2]int{}
 	for {
-		start, end := p.parseLinkReferenceDefinition(block, pc)
+		start, end := parseLinkReferenceDefinition(block, pc)
 		if start > -1 {
 			if start == end {
 				end++
@@ -51,7 +55,7 @@ func (p *referenceParagraphTransformer) Transform(node *ast.Paragraph, reader te
 	node.SetLines(lines)
 }
 
-func (p *referenceParagraphTransformer) parseLinkReferenceDefinition(block text.Reader, pc gparser.Context) (int, int) {
+func parseLinkReferenceDefinition(block text.Reader, pc Context) (int, int) {
 	block.SkipSpaces()
 	line, _ := block.PeekLine()
 	if line == nil {
@@ -91,7 +95,6 @@ func (p *referenceParagraphTransformer) parseLinkReferenceDefinition(block text.
 	block.Advance(1)
 	block.SkipSpaces()
 
-	// Use our action-aware parseLinkDestination function
 	destination, ok := parseLinkDestination(block)
 	if !ok {
 		return -1, -1
@@ -106,7 +109,7 @@ func (p *referenceParagraphTransformer) parseLinkReferenceDefinition(block text.
 		if !isNewLine {
 			return -1, -1
 		}
-		ref := gparser.NewReference(label, destination, nil)
+		ref := NewReference(label, destination, nil)
 		pc.AddReference(ref)
 		return startLine, endLine + 1
 	}
@@ -123,7 +126,7 @@ func (p *referenceParagraphTransformer) parseLinkReferenceDefinition(block text.
 		if !isNewLine {
 			return -1, -1
 		}
-		ref := gparser.NewReference(label, destination, nil)
+		ref := NewReference(label, destination, nil)
 		pc.AddReference(ref)
 		block.AdvanceLine()
 		return startLine, endLine + 1
@@ -143,13 +146,13 @@ func (p *referenceParagraphTransformer) parseLinkReferenceDefinition(block text.
 		if !isNewLine {
 			return -1, -1
 		}
-		ref := gparser.NewReference(label, destination, title)
+		ref := NewReference(label, destination, title)
 		pc.AddReference(ref)
 		return startLine, endLine
 	}
 
 	endLine, _ = block.Position()
-	ref := gparser.NewReference(label, destination, title)
+	ref := NewReference(label, destination, title)
 	pc.AddReference(ref)
 	return startLine, endLine + 1
 }
