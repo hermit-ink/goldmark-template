@@ -33,11 +33,22 @@ func (s *autoLinkParser) Parse(parent ast.Node, block text.Reader, pc gparser.Co
 
 	urlContent := content[:closePos]
 
-	// Only treat as autolink if content STARTS with template
-	// TODO: Support `<https://hermit.ink/{{.Foo}}>` this is harder because
-	// we don't want to accidentally hijack the raw HTML parser making raw
-	// HTML an autolink
+	// If it starts with an action then it *should* be an autolink.
+	//
+	// <{{ .URL }}>
+	// <{{> will also get treated like an autolink even though its not valid
+	// but that's ok
 	if len(urlContent) >= 2 && urlContent[0] == '{' && urlContent[1] == '{' {
+		stop := closePos + 1 // +1 for the '>'
+		value := ast.NewTextSegment(text.NewSegment(segment.Start+1, segment.Start+stop))
+		block.Advance(stop + 1)
+		return ast.NewAutoLink(ast.AutoLinkURL, value)
+	}
+
+	// If it starts with a URL-like string (util.FindURLIndex) and it has a
+	// template action in it then construct an autolink ast node and return it
+	// <https://......{{.Something}}>
+	if util.FindURLIndex(urlContent) > 0 && containsTemplateAction(urlContent) {
 		stop := closePos + 1 // +1 for the '>'
 		value := ast.NewTextSegment(text.NewSegment(segment.Start+1, segment.Start+stop))
 		block.Advance(stop + 1)

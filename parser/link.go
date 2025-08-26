@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 
@@ -403,7 +402,7 @@ func parseLinkDestination(block text.Reader) ([]byte, bool) {
 	dest := line[:i]
 
 	// Templates are always valid, otherwise use original validation
-	if bytes.Contains(dest, []byte("{{")) {
+	if containsTemplateAction(dest) {
 		return dest, true
 	}
 

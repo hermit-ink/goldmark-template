@@ -29,6 +29,7 @@ func (s *templateActionParser) Parse(parent gast.Node, block text.Reader, pc gpa
 	}
 
 	i := 2
+	// TODO: backticks
 	inDoubleQuotes := false
 	inSingleQuotes := false
 

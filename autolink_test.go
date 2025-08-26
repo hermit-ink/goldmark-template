@@ -45,6 +45,26 @@ func TestAutolinkTemplates(t *testing.T) {
 			input:    `<{{ printf "%s/%s" .BaseURL .Path }}>`,
 			expected: `<p><a href="{{ printf "%s/%s" .BaseURL .Path }}">{{ printf "%s/%s" .BaseURL .Path }}</a></p>`,
 		},
+		{
+			name:     "URL with embedded template action",
+			input:    `<https://hermit.ink/{{.Foo}}>`,
+			expected: `<p><a href="https://hermit.ink/{{.Foo}}">https://hermit.ink/{{.Foo}}</a></p>`,
+		},
+		{
+			name:     "URL with multiple template actions",
+			input:    `<https://{{.Host}}/{{.Path}}>`,
+			expected: `<p><a href="https://{{.Host}}/{{.Path}}">https://{{.Host}}/{{.Path}}</a></p>`,
+		},
+		{
+			name:     "URL with template action in query parameter",
+			input:    `<https://example.com/page?id={{.ID}}>`,
+			expected: `<p><a href="https://example.com/page?id={{.ID}}">https://example.com/page?id={{.ID}}</a></p>`,
+		},
+		{
+			name:     "URL with complex template action embedded",
+			input:    `<https://api.{{.Domain}}/v1/{{printf "users/%d" .UserID}}>`,
+			expected: `<p><a href="https://api.{{.Domain}}/v1/{{printf "users/%d" .UserID}}">https://api.{{.Domain}}/v1/{{printf "users/%d" .UserID}}</a></p>`,
+		},
 	}
 
 	md := goldmark.New(
