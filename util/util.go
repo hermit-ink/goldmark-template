@@ -31,7 +31,17 @@ func (t *actionState) ProcessChar(line []byte, i int) bool {
 	char := line[i]
 
 	// Check if current character is escaped (but not inside backticks where escapes don't exist)
-	isEscaped := !t.inBackticks && i > 0 && line[i-1] == '\\'
+	// We need to count consecutive backslashes to determine if this char is actually escaped
+	isEscaped := false
+	if !t.inBackticks && i > 0 {
+		// Count consecutive backslashes before this character
+		backslashCount := 0
+		for j := i - 1; j >= 0 && line[j] == '\\'; j-- {
+			backslashCount++
+		}
+		// Character is escaped if there's an odd number of backslashes before it
+		isEscaped = backslashCount%2 == 1
+	}
 
 	// Track template action boundaries
 	if !t.inAction && i < len(line)-1 && char == '{' && line[i+1] == '{' {

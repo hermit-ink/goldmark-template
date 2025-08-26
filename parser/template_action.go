@@ -29,7 +29,6 @@ func (s *templateActionParser) Parse(parent gast.Node, block text.Reader, pc gpa
 		return nil
 	}
 
-
 	endPos := tutil.FindActionEnd(line, 0)
 	if endPos == -1 {
 		return nil
