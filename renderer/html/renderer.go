@@ -2,7 +2,6 @@ package html
 
 import (
 	"bytes"
-	"fmt"
 
 	"github.com/hermit-ink/goldmark-template/ast"
 	tutil "github.com/hermit-ink/goldmark-template/util"
@@ -43,13 +42,6 @@ func (r *Renderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 func (r *Renderer) renderHeading(w util.BufWriter, source []byte, node gast.Node, entering bool) (gast.WalkStatus, error) {
 	n := node.(*gast.Heading)
 	if entering {
-		fmt.Printf("DEBUG: renderHeading called, node=%p, entering=true, attributes=%v\n", node, n.Attributes() != nil)
-		if n.Attributes() != nil {
-			fmt.Printf("DEBUG: heading has %d attributes\n", len(n.Attributes()))
-			for _, attr := range n.Attributes() {
-				fmt.Printf("DEBUG: attr %s = %v\n", attr.Name, attr.Value)
-			}
-		}
 		_, _ = w.WriteString("<h")
 		_ = w.WriteByte("0123456"[n.Level])
 		if n.Attributes() != nil {
@@ -57,7 +49,6 @@ func (r *Renderer) renderHeading(w util.BufWriter, source []byte, node gast.Node
 		}
 		_ = w.WriteByte('>')
 	} else {
-		fmt.Printf("DEBUG: renderHeading called, node=%p, entering=false\n", node)
 		_, _ = w.WriteString("</h")
 		_ = w.WriteByte("0123456"[n.Level])
 		_, _ = w.WriteString(">\n")

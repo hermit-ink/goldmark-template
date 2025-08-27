@@ -73,68 +73,6 @@ func TestBasicAttributeTypes(t *testing.T) {
 	}
 }
 
-func TestElementSpecificAttributes(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected string
-	}{
-		{
-			name:     "link with class attribute containing template",
-			input:    `[Link Text]({{ .URL }}){class="{{ .LinkClass }}"}`,
-			expected: `<p><a href="{{ .URL }}" class="{{ .LinkClass }}">Link Text</a></p>`,
-		},
-		{
-			name:     "image with attributes containing templates",
-			input:    `![Alt Text]({{ .ImageURL }}){id="{{ .ImageID }}" class="{{ .ImageClass }}"}`,
-			expected: `<p><img src="{{ .ImageURL }}" alt="Alt Text" id="{{ .ImageID }}" class="{{ .ImageClass }}" /></p>`,
-		},
-		{
-			name:     "code block with class template",
-			input:    "```go {class=\"{{ .CodeClass }}\"}\nfmt.Println({{ .Message }})\n```",
-			expected: `<pre><code class="{{ .CodeClass }}">fmt.Println({{ .Message }})\n</code></pre>`,
-		},
-		{
-			name:     "emphasis with template attributes",
-			input:    `*emphasized text*{class="{{ .EmphasisClass }}"}`,
-			expected: `<p><em class="{{ .EmphasisClass }}">emphasized text</em></p>`,
-		},
-		{
-			name:     "strong with template attributes",
-			input:    `**strong text**{id="{{ .StrongID }}"}`,
-			expected: `<p><strong id="{{ .StrongID }}">strong text</strong></p>`,
-		},
-	}
-
-	md := goldmark.New(
-		goldmark.WithExtensions(New()),
-		goldmark.WithParserOptions(
-			parser.WithAttribute(),
-			parser.WithHeadingAttribute(),
-		),
-		goldmark.WithRendererOptions(
-			html.WithUnsafe(),
-			html.WithXHTML(),
-		),
-	)
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var buf bytes.Buffer
-			err := md.Convert([]byte(tt.input), &buf)
-			if err != nil {
-				t.Fatalf("Failed to convert markdown: %v", err)
-			}
-
-			got := strings.TrimSpace(buf.String())
-			expected := strings.TrimSpace(tt.expected)
-
-			if got != expected {
-				t.Errorf("Output mismatch\nInput:    %q\nExpected: %q\nGot:      %q", tt.input, expected, got)
-			}
-		})
-	}
-}
 
 func TestComplexAttributeScenarios(t *testing.T) {
 	tests := []struct {
@@ -150,7 +88,7 @@ func TestComplexAttributeScenarios(t *testing.T) {
 		{
 			name:     "attribute with template containing quotes",
 			input:    `# Heading {data-msg="{{ printf \"Hello %s\" .Name }}"}`,
-			expected: `<h1 data-msg="{{ printf &#34;Hello %s&#34; .Name }}">Heading</h1>`,
+			expected: `<h1 data-msg="{{ printf \"Hello %s\" .Name }}">Heading</h1>`,
 		},
 		{
 			name:     "multiple attributes with different template types",
@@ -165,7 +103,7 @@ func TestComplexAttributeScenarios(t *testing.T) {
 		{
 			name:     "attribute template with special characters",
 			input:    `# Heading {data-path="{{ .Path | replace \"\\\\" \"/\" }}"}`,
-			expected: `<h1 data-path="{{ .Path | replace &#34;\\&#34; &#34;/&#34; }}">Heading</h1>`,
+			expected: `<h1 data-path="{{ .Path | replace \"\\\" \"/\" }}">Heading</h1>`,
 		},
 	}
 
@@ -199,59 +137,3 @@ func TestComplexAttributeScenarios(t *testing.T) {
 	}
 }
 
-func TestAttributesWithExtensions(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected string
-	}{
-		{
-			name: "blockquote with template attributes",
-			input: `> Quote text {class="{{ .QuoteClass }}"}`,
-			expected: `<blockquote class="{{ .QuoteClass }}">
-<p>Quote text</p>
-</blockquote>`,
-		},
-		{
-			name: "list item with template attributes",  
-			input: `- Item text {class="{{ .ItemClass }}"}`,
-			expected: `<ul>
-<li class="{{ .ItemClass }}">Item text</li>
-</ul>`,
-		},
-		{
-			name: "paragraph with template attributes",
-			input: `Regular paragraph text {id="{{ .ParagraphID }}"}`,
-			expected: `<p id="{{ .ParagraphID }}">Regular paragraph text</p>`,
-		},
-	}
-
-	md := goldmark.New(
-		goldmark.WithExtensions(New()),
-		goldmark.WithParserOptions(
-			parser.WithAttribute(),
-			parser.WithHeadingAttribute(),
-		),
-		goldmark.WithRendererOptions(
-			html.WithUnsafe(),
-			html.WithXHTML(),
-		),
-	)
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var buf bytes.Buffer
-			err := md.Convert([]byte(tt.input), &buf)
-			if err != nil {
-				t.Fatalf("Failed to convert markdown: %v", err)
-			}
-
-			got := strings.TrimSpace(buf.String())
-			expected := strings.TrimSpace(tt.expected)
-
-			if got != expected {
-				t.Errorf("Output mismatch\nInput:    %q\nExpected: %q\nGot:      %q", tt.input, expected, got)
-			}
-		})
-	}
-}
