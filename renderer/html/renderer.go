@@ -2,6 +2,7 @@ package html
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/hermit-ink/goldmark-template/ast"
 	tutil "github.com/hermit-ink/goldmark-template/util"
@@ -36,6 +37,32 @@ func (r *Renderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	reg.Register(gast.KindLink, r.renderLink)
 	reg.Register(gast.KindImage, r.renderImage)
 	reg.Register(gast.KindAutoLink, r.renderAutoLink)
+	reg.Register(gast.KindHeading, r.renderHeading)
+}
+
+func (r *Renderer) renderHeading(w util.BufWriter, source []byte, node gast.Node, entering bool) (gast.WalkStatus, error) {
+	n := node.(*gast.Heading)
+	if entering {
+		fmt.Printf("DEBUG: renderHeading called, node=%p, entering=true, attributes=%v\n", node, n.Attributes() != nil)
+		if n.Attributes() != nil {
+			fmt.Printf("DEBUG: heading has %d attributes\n", len(n.Attributes()))
+			for _, attr := range n.Attributes() {
+				fmt.Printf("DEBUG: attr %s = %v\n", attr.Name, attr.Value)
+			}
+		}
+		_, _ = w.WriteString("<h")
+		_ = w.WriteByte("0123456"[n.Level])
+		if n.Attributes() != nil {
+			r.renderAttributes(w, node, ghtml.HeadingAttributeFilter)
+		}
+		_ = w.WriteByte('>')
+	} else {
+		fmt.Printf("DEBUG: renderHeading called, node=%p, entering=false\n", node)
+		_, _ = w.WriteString("</h")
+		_ = w.WriteByte("0123456"[n.Level])
+		_, _ = w.WriteString(">\n")
+	}
+	return gast.WalkContinue, nil
 }
 
 func (r *Renderer) renderCodeBlock(w util.BufWriter, source []byte, n gast.Node, entering bool) (gast.WalkStatus, error) {
@@ -327,4 +354,37 @@ func (r *Renderer) writeLines(w util.BufWriter, source []byte, n gast.Node) erro
 		r.Writer.RawWrite(w, line.Value(source))
 	}
 	return nil
+}
+
+// renderAttributes renders given node's attributes with template action preservation.
+// This copies goldmark's RenderAttributes logic but uses our template-aware attribute handling.
+func (r *Renderer) renderAttributes(w util.BufWriter, node gast.Node, filter util.BytesFilter) {
+	dataPrefix := []byte("data-")
+	for _, attr := range node.Attributes() {
+		if filter != nil && !filter.Contains(attr.Name) {
+			if !bytes.HasPrefix(attr.Name, dataPrefix) {
+				continue
+			}
+		}
+		_, _ = w.WriteString(" ")
+		_, _ = w.Write(attr.Name)
+		_, _ = w.WriteString(`="`)
+		// TODO: convert numeric values to strings
+		var value []byte
+		switch typed := attr.Value.(type) {
+		case []byte:
+			value = typed
+		case string:
+			value = util.StringToReadOnlyBytes(typed)
+		}
+		
+		// Use our template-aware attribute value handling instead of goldmark's EscapeHTML
+		if hasAction(value) {
+			r.writeAttributeWithTemplates(w, value, false) // false = not a URL attribute
+		} else {
+			// For non-template values, use goldmark's standard HTML escaping
+			_, _ = w.Write(util.EscapeHTML(value))
+		}
+		_ = w.WriteByte('"')
+	}
 }

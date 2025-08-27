@@ -147,7 +147,15 @@ Output:
 <p>Today is {{ .Date }}.</p>
 ```
 
-## Important Caveats
+## Limitations and Caveats
+
+### Actions can only be used as values in attributes
+
+```markdown
+# Heading {id="{{ .HeadingID }}"}
+# Heading {class="{{ .CSSClass }}"}
+# Heading {data-value="{{ .Data }}"}
+```
 
 ### Extension Order Matters
 Always register `goldmark-template` **BEFORE** other extensions that might interfere with template syntax:
@@ -163,10 +171,6 @@ goldmark.WithExtensions(
 
 This extension **does not validate** Go template syntax. Invalid templates pass
 through unchanged.
-
-### Template Processing is Separate
-
-This extension only preserves template syntax in HTML output. You still need to run the output through Go's `text/template` or `html/template`:
 
 ```go
 // 1. Process Markdown with goldmark-template

@@ -15,12 +15,25 @@ func ActionAwareParsers() gparser.Parser {
 		util.Prioritized(NewTemplateActionParser(), 600),
 	}
 
+	blockParsers := []util.PrioritizedValue{
+		util.Prioritized(gparser.NewSetextHeadingParser(), 100),
+		util.Prioritized(gparser.NewThematicBreakParser(), 200),
+		util.Prioritized(gparser.NewListParser(), 300),
+		util.Prioritized(gparser.NewListItemParser(), 400),
+		util.Prioritized(gparser.NewCodeBlockParser(), 500),
+		util.Prioritized(NewATXHeadingParser(), 600),
+		util.Prioritized(gparser.NewFencedCodeBlockParser(), 700),
+		util.Prioritized(gparser.NewBlockquoteParser(), 800),
+		util.Prioritized(gparser.NewHTMLBlockParser(), 900),
+		util.Prioritized(gparser.NewParagraphParser(), 1000),
+	}
+
 	paragraphTransformers := []util.PrioritizedValue{
 		util.Prioritized(LinkReferenceParagraphTransformer, 100),
 	}
 
 	return gparser.NewParser(
-		gparser.WithBlockParsers(gparser.DefaultBlockParsers()...),
+		gparser.WithBlockParsers(blockParsers...),
 		gparser.WithInlineParsers(inlineParsers...),
 		gparser.WithParagraphTransformers(paragraphTransformers...),
 	)

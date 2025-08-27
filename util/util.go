@@ -1,14 +1,16 @@
 package util
 
-import "bytes"
+import (
+	"bytes"
+)
 
 // ContainsAction checks if the given content contains Go template actions
 func ContainsAction(content []byte) bool {
 	return bytes.Contains(content, []byte("{{"))
 }
 
-// actionState tracks state when parsing through template actions
-type actionState struct {
+// ActionState tracks state when parsing through template actions
+type ActionState struct {
 	inAction        bool
 	templateDepth   int
 	inDoubleQuotes  bool
@@ -17,13 +19,13 @@ type actionState struct {
 }
 
 // NewActionState creates a new template action state tracker
-func NewActionState() *actionState {
-	return &actionState{}
+func NewActionState() *ActionState {
+	return &ActionState{}
 }
 
 // ProcessChar processes a character and updates template action state
 // Returns true if the character should be ignored for other parsing logic
-func (t *actionState) ProcessChar(line []byte, i int) bool {
+func (t *ActionState) ProcessChar(line []byte, i int) bool {
 	if i >= len(line) {
 		return false
 	}
@@ -77,9 +79,10 @@ func (t *actionState) ProcessChar(line []byte, i int) bool {
 }
 
 // InTemplateAction returns true if currently inside a template action
-func (t *actionState) InAction() bool {
+func (t *ActionState) InAction() bool {
 	return t.inAction
 }
+
 
 // FindActionEnd finds the end of a template action starting from position startPos
 // Returns the position after the closing }} or -1 if not found
