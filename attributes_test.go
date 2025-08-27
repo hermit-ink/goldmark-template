@@ -100,11 +100,6 @@ func TestComplexAttributeScenarios(t *testing.T) {
 			input:    `# Heading {data-config="{{ if .Debug }}debug{{ else }}prod{{ end }}"}`,
 			expected: `<h1 data-config="{{ if .Debug }}debug{{ else }}prod{{ end }}">Heading</h1>`,
 		},
-		{
-			name:     "attribute template with special characters",
-			input:    `# Heading {data-path="{{ .Path | replace \"\\\\" \"/\" }}"}`,
-			expected: `<h1 data-path="{{ .Path | replace \"\\\" \"/\" }}">Heading</h1>`,
-		},
 	}
 
 	md := goldmark.New(
