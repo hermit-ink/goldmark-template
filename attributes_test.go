@@ -44,11 +44,10 @@ func TestBasicAttributeTypes(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(New()),
-		goldmark.WithParserOptions(
+		goldmark.WithExtensions(WithParserOptions(
 			parser.WithAttribute(),
 			parser.WithHeadingAttribute(),
-		),
+		)),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),
@@ -103,11 +102,10 @@ func TestComplexAttributeScenarios(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(New()),
-		goldmark.WithParserOptions(
+		goldmark.WithExtensions(WithParserOptions(
 			parser.WithAttribute(),
 			parser.WithHeadingAttribute(),
-		),
+		)),
 		goldmark.WithRendererOptions(
 			html.WithUnsafe(),
 			html.WithXHTML(),

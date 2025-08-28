@@ -10,11 +10,18 @@ import (
 )
 
 // Extension is a goldmark extension for handling Go template actions
-type Extension struct{}
+type Extension struct {
+	parserOptions []gparser.Option
+}
 
 // New creates a new goldmark.Extender for template support
 func New() goldmark.Extender {
 	return &Extension{}
+}
+
+// WithParserOptions creates a new goldmark.Extender for template support with parser options
+func WithParserOptions(opts ...gparser.Option) goldmark.Extender {
+	return &Extension{parserOptions: opts}
 }
 
 // Extend configures the markdown processor to use our custom template action
@@ -23,12 +30,10 @@ func (e *Extension) Extend(m goldmark.Markdown) {
 	// Create our new parser
 	newParser := parser.ActionAwareParsers()
 	
-	// TEMPORARY: Manually add the options that were in the test
-	// TODO: Find a way to preserve the original parser's options
-	newParser.AddOptions(
-		gparser.WithAttribute(),
-		gparser.WithHeadingAttribute(),
-	)
+	// Apply user-provided parser options
+	if len(e.parserOptions) > 0 {
+		newParser.AddOptions(e.parserOptions...)
+	}
 	
 	m.SetParser(newParser)
 	m.Renderer().AddOptions(

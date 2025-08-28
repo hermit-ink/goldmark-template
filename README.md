@@ -67,6 +67,48 @@ func main() {
 }
 ```
 
+### With Parser Options
+
+Since goldmark-template *replaces* built-in parsers you need to use the goldmark-template
+specific way of adding parser options.  The API is identical to goldmark's `WithParserOptions` except its an alternative constructor for the extensions.  Use it just like
+you would goldmark's `WithParserOptions`.
+
+```go
+package main
+
+import (
+    "bytes"
+    "fmt"
+
+    "github.com/yuin/goldmark"
+    "github.com/yuin/goldmark/parser"
+    "github.com/yuin/goldmark/renderer/html"
+    goldmarktemplate "github.com/hermit-ink/goldmark-template"
+)
+
+func main() {
+    md := goldmark.New(
+        goldmark.WithExtensions(
+            goldmarktemplate.WithParserOptions(
+                parser.WithAutoHeadingID(),
+                parser.WithAttribute(),
+            ),
+        ),
+        goldmark.WithRendererOptions(
+            html.WithUnsafe(),
+        ),
+    )
+
+    input := []byte("# {{ .Title }}\n\n[Link]({{ .URL }})")
+    var buf bytes.Buffer
+    if err := md.Convert(input, &buf); err != nil {
+        panic(err)
+    }
+    fmt.Println(buf.String())
+    // Output: <h1 id="title">{{ .Title }}</h1>\n<p><a href="{{ .URL }}">Link</a></p>
+}
+```
+
 ### With GFM Extension
 
 ```go

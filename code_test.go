@@ -34,10 +34,9 @@ func TestNestedActions(t *testing.T) {
 	}
 
 	md := goldmark.New(
-		goldmark.WithExtensions(New()),
-		goldmark.WithParserOptions(
+		goldmark.WithExtensions(WithParserOptions(
 			parser.WithAutoHeadingID(),
-		),
+		)),
 		goldmark.WithRendererOptions(
 			html.WithXHTML(),
 		),
