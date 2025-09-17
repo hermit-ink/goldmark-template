@@ -70,7 +70,7 @@ func main() {
 ### With Parser Options
 
 Since goldmark-template *replaces* built-in parsers you need to use the goldmark-template
-specific way of adding parser options.  The API is identical to goldmark's `WithParserOptions` except its an alternative constructor for the extensions.  Use it just like
+specific way of adding parser options.  The API is identical to goldmark's `WithParserOptions` except it's an alternative constructor for the extensions.  Use it just like
 you would goldmark's `WithParserOptions`.
 
 ```go
@@ -216,10 +216,23 @@ through unchanged.
 
 ```go
 // 1. Process Markdown with goldmark-template
-html := processMarkdown(markdown)
+md := goldmark.New(goldmark.WithExtensions(goldmarktemplate.New()))
+
+input := []byte("# {{ .Title }}\n\n[Link]({{ .URL }})")
+var htmlTmpl bytes.Buffer
+if err := md.Convert(input, &htmlTmpl); err != nil {
+    panic(err)
+}
 
 // 2. Process the HTML with Go templates
-tmpl := template.Must(template.New("").Parse(html))
+data := struct {
+    URL   string
+    Title string
+}{
+    URL:   "https://example.com",
+    Title: "Example Page",
+}
+tmpl := template.Must(template.New("").Parse(string(htmlTmpl)))
 tmpl.Execute(w, data)
 ```
 
